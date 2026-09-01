@@ -1,0 +1,3308 @@
+
+
+===============================
+FILE: src/pages/Landing.tsx
+===============================
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Car,
+  Plane,
+  Phone,
+  MessageCircle,
+  Star,
+  ShieldCheck,
+  MapPin,
+  Clock,
+  Calendar,
+  Trophy,
+  Users,
+  Headphones,
+  HelpCircle,
+  X,
+  Compass,
+  DollarSign,
+  Globe,
+  Sparkles,
+  Crown,
+  CheckCircle2,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  Luggage,
+  Ticket,
+  Building,
+  ChevronRight,
+  Mail,
+} from "lucide-react";
+
+function ChevronDown(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+const MAURITIUS_LOCATIONS = [
+  { id: "ssr-airport", name: "SSR International Airport", type: "airport", region: "Plaine Magnien" },
+  { id: "grand-baie", name: "Grand Baie", type: "tourist", region: "Rivière du Rempart" },
+  { id: "flic-en-flac", name: "Flic en Flac", type: "beach", region: "Black River" },
+  { id: "port-louis", name: "Port Louis", type: "city", region: "Port Louis" },
+  { id: "curepipe", name: "Curepipe", type: "city", region: "Plaines Wilhems" },
+  { id: "tamarin", name: "Tamarin", type: "beach", region: "Black River" },
+  { id: "belle-mare", name: "Belle Mare", type: "beach", region: "Flacq" },
+  { id: "le-morne", name: "Le Morne", type: "mountain", region: "Black River" },
+  { id: "mahebourg", name: "Mahebourg", type: "town", region: "Grand Port" },
+  { id: "blue-bay", name: "Blue Bay", type: "beach", region: "Grand Port" },
+];
+
+const AWARDS = [
+  { name: "Discover Cars Excellence Award", year: "2023", icon: Trophy, desc: "Top Car Rental Partner" },
+  { name: "Discover Cars Excellence Award", year: "2024", icon: Trophy, desc: "Outstanding Service" },
+  { name: "Discover Cars Excellence Award", year: "2025", icon: Crown, desc: "Premium Partner" },
+];
+
+const PARTNERS = [
+  { name: "Discover Cars", url: "https://www.discovercars.com", logo: "🚗", rating: 4.9 },
+  { name: "CarJet", url: "https://www.carjet.com", logo: "✈️", rating: 4.8 },
+  { name: "Rentilles", url: "https://www.rentilles.com", logo: "🏝️", rating: 4.9 },
+  { name: "Booking.com", url: "https://www.booking.com", logo: "🏨", rating: 4.8 },
+];
+
+const PAYMENT_METHODS = [
+  { name: "Visa", logo: "💳", bg: "bg-blue-100", text: "text-blue-700" },
+  { name: "Mastercard", logo: "💳", bg: "bg-red-100", text: "text-red-700" },
+  { name: "American Express", logo: "💳", bg: "bg-blue-100", text: "text-blue-700" },
+  { name: "MCB Juice", logo: "🪙", bg: "bg-green-100", text: "text-green-700" },
+  { name: "Bank Transfer", logo: "🏦", bg: "bg-gray-100", text: "text-gray-700" },
+  { name: "Cash", logo: "💵", bg: "bg-yellow-100", text: "text-yellow-700" },
+];
+
+const REVIEWS = [
+  { id: 1, name: "Emma Richardson", country: "UK", flag: "🇬🇧", rating: 5, text: "Booked before landing. The AM38 handover was ready at SSR Airport. Smooth process!", date: "March 2026" },
+  { id: 2, name: "Daniel Schmidt", country: "Germany", flag: "🇩🇪", rating: 5, text: "Clear pricing, no hidden fees, fast WhatsApp support.", date: "February 2026" },
+  { id: 3, name: "Naveen Kumar", country: "India", flag: "🇮🇳", rating: 5, text: "I booked while waiting for luggage. Delivery was instant.", date: "January 2026" },
+  { id: 4, name: "Sophie Laurent", country: "France", flag: "🇫🇷", rating: 5, text: "Service impeccable! Voiture propre, personnel charmant.", date: "December 2025" },
+  { id: 5, name: "Michael Chen", country: "China", flag: "🇨🇳", rating: 5, text: "Best rental experience. Car was spotless, pickup instant.", date: "November 2025" },
+  { id: 6, name: "Isabella Rossi", country: "Italy", flag: "🇮🇹", rating: 5, text: "Servizio eccellente! L'auto era perfetta.", date: "October 2025" },
+];
+
+const PICKUP_STEPS = [
+  { step: 1, title: "Choose Your Vehicle", desc: "150+ premium cars", icon: Car },
+  { step: 2, title: "Share Arrival Details", desc: "Flight number & time", icon: Plane },
+  { step: 3, title: "Meet at Airport", desc: "SSR Arrival Hall", icon: MapPin },
+  { step: 4, title: "Drive Anywhere", desc: "Explore Mauritius freely", icon: Compass },
+];
+
+const FAQS = [
+  { q: "What documents do I need?", a: "Valid driving license, passport/ID, credit card for deposit." },
+  { q: "Is insurance included?", a: "Basic insurance included, excess reduction Rs 300/day." },
+  { q: "Free cancellation?", a: "Free up to 24h before pickup." },
+  { q: "Airport delivery?", a: "Yes, free delivery at SSR Airport arrival hall." },
+  { q: "Anywhere delivery?", a: "Yes – hotels, villas, any location in Mauritius." },
+  { q: "Payment methods?", a: "Visa, Mastercard, Amex, Bank Transfer, Cash, MCB Juice." },
+  { q: "Minimum age?", a: "21 years with license held for 2+ years." },
+  { q: "Fuel policy?", a: "Full-to-full – return with same fuel level." },
+];
+
+const worldCities = [
+  { code: "MU", city: "Mauritius", tz: "Indian/Mauritius" },
+  { code: "GB", city: "London", tz: "Europe/London" },
+  { code: "US", city: "New York", tz: "America/New_York" },
+  { code: "AE", city: "Dubai", tz: "Asia/Dubai" },
+  { code: "JP", city: "Tokyo", tz: "Asia/Tokyo" },
+  { code: "FR", city: "Paris", tz: "Europe/Paris" },
+  { code: "AU", city: "Sydney", tz: "Australia/Sydney" },
+];
+
+function TermsPreview() {
+  return (
+    <section className="py-20 bg-white/30 backdrop-blur-sm backdrop-saturate-150">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="bg-white/90 backdrop-blur-2xl rounded-[32px] border border-white/90 p-10 shadow-2xl">
+          <div className="text-center mb-10">
+            <h2 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-slate-900 to-red-500 bg-clip-text text-transparent">
+              Terms & Conditions
+            </h2>
+            <p className="mt-4 text-slate-700 text-lg font-semibold">AM38 Mauritius Rental Policies</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 text-slate-700 leading-relaxed">
+            <div className="bg-white rounded-2xl p-6 border shadow-md">
+              <h3 className="font-black text-xl mb-3">Rental Conditions</h3>
+              <ul className="space-y-2">
+                <li>• Driver must hold valid driving license.</li>
+                <li>• Vehicle must be returned with same fuel level.</li>
+                <li>• Vehicle must be returned in same condition.</li>
+                <li>• Rental extension must be informed.</li>
+                <li>• Vehicle abandonment is prohibited.</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-2xl p-6 border shadow-md">
+              <h3 className="font-black text-xl mb-3">Driver Responsibility</h3>
+              <ul className="space-y-2">
+                <li>• Driver is responsible under alcohol influence.</li>
+                <li>• No reckless or illegal driving permitted.</li>
+                <li>• Accident must be reported within 4 hours.</li>
+                <li>• Damage responsibility applies where necessary.</li>
+                <li>• Passenger transport restrictions apply.</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-2xl p-6 border shadow-md">
+              <h3 className="font-black text-xl mb-3">Airport & Insurance</h3>
+              <ul className="space-y-2">
+                <li>• Free SSR airport handover.</li>
+                <li>• Driver waits during flight delays.</li>
+                <li>• Insurance conditions apply.</li>
+                <li>• Cyclone and Mauritius weather policies apply.</li>
+                <li>• Jurisdiction: Republic of Mauritius.</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              to="/legal"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-500 to-red-500 text-white font-black shadow-2xl hover:scale-105 transition"
+            >
+              📄 View Full Legal Documents
+              <ChevronRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function Landing() {
+  const [pickupLocation, setPickupLocation] = useState("");
+  const [returnLocation, setReturnLocation] = useState("");
+  const [pickupLocationSearch, setPickupLocationSearch] = useState("");
+  const [returnLocationSearch, setReturnLocationSearch] = useState("");
+  const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
+  const [showReturnSuggestions, setShowReturnSuggestions] = useState(false);
+  const [pickupDate, setPickupDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [pickupTime, setPickupTime] = useState("10:00");
+  const [returnTime, setReturnTime] = useState("10:00");
+  const [vehicleType, setVehicleType] = useState("any");
+  const [passengers, setPassengers] = useState(2);
+  const [luggage, setLuggage] = useState(2);
+  const [childSeat, setChildSeat] = useState(false);
+  const [gps, setGps] = useState(false);
+  const [additionalDriver, setAdditionalDriver] = useState(false);
+  const [insurance, setInsurance] = useState("basic");
+  const [promoCode, setPromoCode] = useState("");
+  const [hotelDelivery, setHotelDelivery] = useState(false);
+  const [priorityPickup, setPriorityPickup] = useState(false);
+  const [flightDelayProtection, setFlightDelayProtection] = useState(false);
+  const [terminal, setTerminal] = useState("main");
+  const [specialRequests, setSpecialRequests] = useState("");
+  const [estimatedPrice, setEstimatedPrice] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showDriverModal, setShowDriverModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [selectedLang, setSelectedLang] = useState("English");
+  const [selectedCurrency, setSelectedCurrency] = useState("MUR");
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const [currencyOpen, setCurrencyOpen] = useState(false);
+
+  const heroRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const languages = ["English", "Français", "Deutsch", "Italiano"];
+  const currencies = ["MUR", "EUR", "USD", "GBP"];
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const locationSuggestions = (search: string) =>
+    MAURITIUS_LOCATIONS.filter(
+      (loc) =>
+        loc.name.toLowerCase().includes(search.toLowerCase()) ||
+        loc.region.toLowerCase().includes(search.toLowerCase())
+    ).slice(0, 6);
+
+  const calculatePriceEstimate = useCallback(() => {
+    if (pickupDate && returnDate) {
+      const days = Math.max(
+        1,
+        Math.ceil(
+          (new Date(returnDate).getTime() - new Date(pickupDate).getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
+      );
+      const basePrice =
+        vehicleType === "luxury" ? 3500 : vehicleType === "suv" ? 2500 : 1500;
+      let extras = 0;
+      if (childSeat) extras += 200;
+      if (gps) extras += 150;
+      if (additionalDriver) extras += 300;
+      if (hotelDelivery) extras += 500;
+      if (priorityPickup) extras += 400;
+      if (flightDelayProtection) extras += 350;
+      setEstimatedPrice(days * basePrice + extras);
+    }
+  }, [
+    pickupDate, returnDate, vehicleType, childSeat, gps,
+    additionalDriver, hotelDelivery, priorityPickup, flightDelayProtection,
+  ]);
+
+  useEffect(() => {
+    calculatePriceEstimate();
+  }, [calculatePriceEstimate]);
+
+  const scrollToBooking = () =>
+    document.getElementById("booking-section")?.scrollIntoView({ behavior: "smooth" });
+
+  const handleSearch = () => {
+    setIsSearching(true);
+    setTimeout(() => {
+      setIsSearching(false);
+      window.location.href = `/cars?search=${encodeURIComponent(
+        JSON.stringify({
+          pickupLocation, returnLocation, pickupDate, returnDate,
+          pickupTime, returnTime, vehicleType, passengers, luggage,
+          childSeat, gps, additionalDriver, insurance, hotelDelivery,
+          priorityPickup, flightDelayProtection, terminal, specialRequests,
+          currency: selectedCurrency, language: selectedLang,
+        })
+      )}`;
+    }, 1000);
+  };
+
+  const selectLocation = (
+    loc: { id: string; name: string; type: string; region: string },
+    type: "pickup" | "return"
+  ) => {
+    if (type === "pickup") {
+      setPickupLocation(loc.name);
+      setPickupLocationSearch(loc.name);
+      setShowPickupSuggestions(false);
+    } else {
+      setReturnLocation(loc.name);
+      setReturnLocationSearch(loc.name);
+      setShowReturnSuggestions(false);
+    }
+  };
+
+  const openDriverTracking = () => {
+    const token = localStorage.getItem("token");
+    if (!token) setShowAuthModal(true);
+    else setShowDriverModal(true);
+  };
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowAuthModal(false);
+    setShowDriverModal(true);
+  };
+
+  const toggleVideoPlay = () => {
+    if (!videoRef.current) return;
+    if (isVideoPlaying) videoRef.current.pause();
+    else videoRef.current.play();
+    setIsVideoPlaying(!isVideoPlaying);
+  };
+
+  const toggleVideoMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoMuted;
+    setVideoMuted(!videoMuted);
+  };
+
+  const mauritiusTime = currentTime.toLocaleTimeString("en-MU", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-white">
+
+      {/* BACKGROUND */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <motion.div
+          animate={{ scale: [1.05, 1.08, 1.05] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0"
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center brightness-[1.18] contrast-[1.08]"
+            style={{ backgroundImage: "url('/vitara_image.jpg')" }}
+          />
+        </motion.div>
+
+        {/* French tricolour wash */}
+        <div className="absolute inset-0 flex pointer-events-none">
+          <div className="w-1/3 bg-blue-600/25 blur-3xl" />
+          <div className="w-1/3 bg-white/15 blur-3xl" />
+          <div className="w-1/3 bg-red-500/25 blur-3xl" />
+        </div>
+        <div className="absolute inset-0 bg-white/18 backdrop-brightness-125 pointer-events-none" />
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.55),transparent_60%)] pointer-events-none" />
+      </div>
+
+      {/* HERO */}
+      <section ref={heroRef} className="relative min-h-screen pt-32 overflow-hidden">
+        <div className="relative z-20 max-w-[1600px] mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/55 backdrop-blur-md px-5 py-2 text-sm font-bold text-blue-800 border border-white/70 mb-6 shadow-lg">
+              <Sparkles className="w-4 h-4" /> Your Virtual Car Rental Counter in Mauritius
+            </div>
+
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-[-0.04em] text-white drop-shadow-[0_0_35px_rgba(255,255,255,0.95)]">
+              Drive Mauritius <br />
+              <span className="bg-gradient-to-r from-blue-500 via-white to-red-500 bg-clip-text text-transparent">
+                with AM38
+              </span>
+            </h1>
+
+            <p className="text-lg text-white max-w-2xl mx-auto leading-relaxed mt-6 bg-white/25 backdrop-blur-md p-5 rounded-2xl border border-white/70 shadow-xl">
+              Trusted by locals and visitors for reliable, affordable and hassle-free car rental services in Mauritius.
+              AM38 makes travelling simple from the moment you arrive.
+            </p>
+
+            <div className="flex flex-wrap gap-4 justify-center mt-8">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={scrollToBooking}
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 text-white rounded-2xl font-bold shadow-[0_10px_40px_rgba(37,99,235,0.35)] flex items-center gap-2"
+              >
+                <Car className="w-5 h-5" /> Book Your Car Now
+              </motion.button>
+              <Link
+                to="/explore"
+                className="px-8 py-4 bg-white/65 backdrop-blur border border-white/80 text-slate-800 rounded-2xl font-bold hover:bg-white/80 flex items-center gap-2 shadow-[0_10px_40px_rgba(37,99,235,0.25)]"
+              >
+                <Compass className="w-5 h-5" /> Explore Mauritius
+              </Link>
+            </div>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-5">
+              <div className="px-5 py-2 rounded-full bg-white/60 backdrop-blur border border-white/70 text-blue-700 font-bold shadow-md">
+                🌍 Anywhere Around The Island
+              </div>
+              <div className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-600 to-red-500 text-white font-bold shadow-xl">
+                ⚡ Online Booking Available 24/7
+              </div>
+              <div className="px-5 py-2 rounded-full bg-white/60 backdrop-blur border border-white/70 text-red-600 font-bold shadow-md">
+                ✈ SSR Airport Delivery
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 mt-8">
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 shadow-2xl flex items-center justify-center text-2xl"
+              >
+                🎈
+              </motion.div>
+              <p className="text-3xl md:text-5xl font-black bg-gradient-to-r from-blue-500 via-white to-red-500 bg-clip-text text-transparent">
+                Land. Book. Go.
+              </p>
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-pink-500 shadow-2xl flex items-center justify-center text-2xl"
+              >
+                🚗
+              </motion.div>
+            </div>
+
+            <div className="mt-10 flex justify-center">
+              <div className="px-6 py-3 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 shadow-xl">
+                <p className="text-slate-800 font-black">🔥 27 Vehicles Booked Today</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* BOOKING ENGINE */}
+          <div id="booking-section" className="relative mt-6 lg:-mt-8 z-30 max-w-[1700px] mx-auto px-2">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="relative overflow-visible rounded-[40px] border border-white/80 bg-gradient-to-br from-white/95 via-blue-50/95 to-red-50/95 backdrop-blur-[30px] shadow-[0_40px_140px_rgba(37,99,235,0.22)] px-5 py-5 lg:px-8 lg:py-8"
+            >
+              <div className="absolute -top-24 -left-24 w-[320px] h-[320px] bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-24 -right-24 w-[320px] h-[320px] bg-red-400/20 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10">
+                {/* top bar */}
+                <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-white/60 mb-6">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                      onClick={openDriverTracking}
+                      className="flex items-center gap-2 bg-green-500/30 border border-green-500/50 px-3 py-1.5 rounded-full hover:bg-green-500/40 text-sm font-bold text-green-800"
+                    >
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> LIVE SSR AIRPORT ARRIVALS
+                    </button>
+                    <button
+                      onClick={openDriverTracking}
+                      className="flex items-center gap-2 bg-blue-500/30 border border-blue-500/50 px-3 py-1.5 rounded-full hover:bg-blue-500/40 text-sm font-bold text-blue-800"
+                    >
+                      <Plane className="w-4 h-4" /> TRACK YOUR DRIVER
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm flex-wrap">
+                    <div className="bg-white/70 border border-white/80 px-3 py-1.5 rounded-full shadow-sm">
+                      <span className="text-slate-800 font-bold">🇲🇺 {mauritiusTime}</span>
+                    </div>
+                    <div className="bg-white/70 border border-white/80 px-3 py-1.5 rounded-full shadow-sm">
+                      <span className="text-slate-800 font-bold">🚗 152 Cars Available</span>
+                    </div>
+                    <div className="bg-white/70 border border-white/80 px-3 py-1.5 rounded-full shadow-sm">
+                      <span className="text-slate-800 font-bold">⚡ 8 Bookings Today</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* inputs grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-start">
+                  <LocationInput
+                    label="Pickup Location"
+                    value={pickupLocationSearch}
+                    setValue={setPickupLocationSearch}
+                    show={showPickupSuggestions}
+                    setShow={setShowPickupSuggestions}
+                    suggestions={locationSuggestions(pickupLocationSearch)}
+                    onSelect={(loc: { id: string; name: string; type: string; region: string }) => selectLocation(loc, "pickup")}
+                  />
+                  <LocationInput
+                    label="Return Location"
+                    value={returnLocationSearch}
+                    setValue={setReturnLocationSearch}
+                    show={showReturnSuggestions}
+                    setShow={setShowReturnSuggestions}
+                    suggestions={locationSuggestions(returnLocationSearch)}
+                    onSelect={(loc: { id: string; name: string; type: string; region: string }) => selectLocation(loc, "return")}
+                  />
+
+                  <InputBlock icon={Calendar} label="Pickup Date">
+                    <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} className="input-premium" />
+                  </InputBlock>
+                  <InputBlock icon={Calendar} label="Return Date">
+                    <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="input-premium" />
+                  </InputBlock>
+                  <InputBlock icon={Clock} label="Pickup Time">
+                    <select value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="input-premium">
+                      {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"].map((t) => (
+                        <option key={t}>{t}</option>
+                      ))}
+                    </select>
+                  </InputBlock>
+                  <InputBlock icon={Clock} label="Return Time">
+                    <select value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="input-premium">
+                      {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"].map((t) => (
+                        <option key={t}>{t}</option>
+                      ))}
+                    </select>
+                  </InputBlock>
+                  <InputBlock icon={Car} label="Vehicle Class">
+                    <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} className="input-premium">
+                      <option value="any">Any Vehicle</option>
+                      <option value="economy">Economy (Rs 1200/day)</option>
+                      <option value="suv">SUV (Rs 2500/day)</option>
+                      <option value="luxury">Luxury (Rs 3500/day)</option>
+                      <option value="7seater">7-Seater (Rs 3000/day)</option>
+                    </select>
+                  </InputBlock>
+                  <InputBlock icon={Users} label="Passengers">
+                    <input type="number" min="1" max="8" value={passengers} onChange={(e) => setPassengers(Number(e.target.value))} className="input-premium" />
+                  </InputBlock>
+                  <InputBlock icon={Luggage} label="Luggage">
+                    <input type="number" min="0" max="6" value={luggage} onChange={(e) => setLuggage(Number(e.target.value))} className="input-premium" />
+                  </InputBlock>
+
+                  <CheckBox id="childSeat" checked={childSeat} onChange={setChildSeat} label="Child Seat (+Rs 200/day)" />
+                  <CheckBox id="gps" checked={gps} onChange={setGps} label="GPS Navigation (+Rs 150/day)" />
+                  <CheckBox id="addDriver" checked={additionalDriver} onChange={setAdditionalDriver} label="Additional Driver (+Rs 300/day)" />
+
+                  <InputBlock icon={ShieldCheck} label="Insurance">
+                    <select value={insurance} onChange={(e) => setInsurance(e.target.value)} className="input-premium">
+                      <option value="basic">Basic (included)</option>
+                      <option value="full">Full Coverage (+Rs 500/day)</option>
+                      <option value="premium">Premium Zero Excess (+Rs 800/day)</option>
+                    </select>
+                  </InputBlock>
+                  <InputBlock icon={Ticket} label="Promo Code">
+                    <input type="text" placeholder="SAVE10" value={promoCode} onChange={(e) => setPromoCode(e.target.value)} className="input-premium" />
+                  </InputBlock>
+
+                  <CheckBox id="hotelDelivery" checked={hotelDelivery} onChange={setHotelDelivery} label="Hotel / Villa Delivery (+Rs 500)" />
+                  <CheckBox id="priorityPickup" checked={priorityPickup} onChange={setPriorityPickup} label="Airport Priority Pickup (+Rs 400)" />
+                  <CheckBox id="delayProtection" checked={flightDelayProtection} onChange={setFlightDelayProtection} label="Flight Delay Protection (+Rs 350)" />
+
+                  <InputBlock icon={Building} label="Terminal">
+                    <select value={terminal} onChange={(e) => setTerminal(e.target.value)} className="input-premium">
+                      <option value="main">Main Terminal</option>
+                      <option value="domestic">Domestic Terminal</option>
+                      <option value="private">Private Jet Terminal</option>
+                    </select>
+                  </InputBlock>
+
+                  <div className="lg:col-span-2">
+                    <label className="label-premium">
+                      <MessageCircle className="w-3 h-3 text-blue-600" /> Special Requests
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={specialRequests}
+                      onChange={(e) => setSpecialRequests(e.target.value)}
+                      placeholder="Any special requirements?"
+                      className="input-premium resize-none"
+                    />
+                  </div>
+
+                  {/* Language */}
+                  <div className="relative z-[100]">
+                    <label className="label-premium">
+                      <Globe className="w-3 h-3 text-blue-600" /> Language
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setLanguageOpen(!languageOpen); setCurrencyOpen(false); }}
+                      className="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 text-left flex items-center justify-between shadow-sm text-slate-800"
+                    >
+                      <span>{selectedLang}</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    {languageOpen && (
+                      <div className="absolute left-0 top-full mt-2 w-full bg-white border border-blue-100 rounded-2xl shadow-2xl overflow-hidden z-[999]">
+                        {languages.map((lang) => (
+                          <button
+                            key={lang}
+                            onClick={() => { setSelectedLang(lang); setLanguageOpen(false); }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 transition text-slate-800"
+                          >
+                            {lang}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Currency */}
+                  <div className="relative z-[100]">
+                    <label className="label-premium">
+                      <DollarSign className="w-3 h-3 text-blue-600" /> Currency
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setCurrencyOpen(!currencyOpen); setLanguageOpen(false); }}
+                      className="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 text-left flex items-center justify-between shadow-sm text-slate-800"
+                    >
+                      <span>{selectedCurrency}</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    {currencyOpen && (
+                      <div className="absolute left-0 top-full mt-2 w-full bg-white border border-blue-100 rounded-2xl shadow-2xl overflow-hidden z-[999]">
+                        {currencies.map((cur) => (
+                          <button
+                            key={cur}
+                            onClick={() => { setSelectedCurrency(cur); setCurrencyOpen(false); }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 transition text-slate-800"
+                          >
+                            {cur}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Search */}
+                  <div className="flex items-end">
+                    <button
+                      onClick={handleSearch}
+                      disabled={isSearching}
+                      className="w-full h-[58px] bg-gradient-to-r from-blue-600 via-cyan-500 to-red-500 text-white rounded-2xl font-black text-lg tracking-wide shadow-[0_18px_60px_rgba(37,99,235,0.4)] hover:scale-[1.02] transition-all disabled:opacity-70"
+                    >
+                      {isSearching ? (
+                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mx-auto" />
+                      ) : (
+                        "SEARCH VEHICLES →"
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {estimatedPrice > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-4 bg-gradient-to-r from-blue-500/20 to-red-500/20 rounded-xl border border-white/80"
+                  >
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <span className="text-slate-800 font-medium">💰 AI Estimated Price:</span>
+                      <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                        <span className="text-3xl font-black text-blue-700">{selectedCurrency} {estimatedPrice}</span>
+                      </motion.div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <span className="text-green-700 text-xs">Live Pricing</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-slate-700 font-semibold">
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-600" /> Free cancellation</span>
+                  <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-blue-600" /> Best price guaranteed</span>
+                  <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-cyan-600" /> Instant confirmation</span>
+                  <span className="flex items-center gap-1"><Headphones className="w-3 h-3 text-blue-600" /> 24/7 support</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Since 2013 */}
+        <div className="mt-24 flex justify-center pb-12 relative">
+          <h2 className="relative text-center text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.12em] bg-gradient-to-r from-blue-600 via-white to-red-500 bg-clip-text text-transparent drop-shadow-md">
+            AM38 AT YOUR SERVICE SINCE 2013
+          </h2>
+        </div>
+      </section>
+
+      {/* PICKUP STEPS */}
+      <Section title="Your Pick-Up Process" subtitle="See how quick it is!">
+        <div className="grid md:grid-cols-4 gap-6">
+          {PICKUP_STEPS.map((step, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              whileHover={{ y: -8 }}
+              className="bg-white/80 backdrop-blur border border-white/90 rounded-2xl p-6 text-center hover:bg-white/90 transition-all shadow-lg"
+            >
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500/30 to-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <step.icon className="w-10 h-10 text-blue-700" />
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-red-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">
+                {step.step}
+              </div>
+              <h3 className="font-bold text-2xl text-slate-800 mb-2">{step.title}</h3>
+              <p className="text-slate-600 text-base">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </Section>
+
+      {/* VIDEO + MAP */}
+      <section className="py-24 bg-gradient-to-br from-blue-50/80 via-white/60 to-red-50/80 backdrop-blur-sm overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            {/* Video */}
+            <div className="relative rounded-[36px] overflow-hidden border border-white/80 shadow-[0_35px_120px_rgba(0,0,0,0.22)] bg-white/40 backdrop-blur-sm">
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-[420px] object-cover"
+                poster="/vitara_image.jpg"
+              >
+                <source src="/video.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+              <div className="absolute top-5 left-5 bg-red-500 text-white px-4 py-2 rounded-full text-xs font-black shadow-xl flex items-center gap-2">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse" /> LIVE AIRPORT DELIVERY
+              </div>
+              <div className="absolute bottom-5 left-5 flex gap-3">
+                <button onClick={toggleVideoPlay} className="bg-white/90 backdrop-blur p-3 rounded-full shadow-xl">
+                  {isVideoPlaying ? <Pause className="w-5 h-5 text-slate-800" /> : <Play className="w-5 h-5 text-slate-800" />}
+                </button>
+                <button onClick={toggleVideoMute} className="bg-white/90 backdrop-blur p-3 rounded-full shadow-xl">
+                  {videoMuted ? <VolumeX className="w-5 h-5 text-slate-800" /> : <Volume2 className="w-5 h-5 text-slate-800" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Route map */}
+            <div className="relative rounded-[40px] overflow-hidden border border-white/80 bg-gradient-to-br from-white/95 via-blue-50/90 to-red-50/90 backdrop-blur-[28px] p-7 shadow-[0_35px_120px_rgba(37,99,235,0.22)]">
+              <div className="absolute inset-0 opacity-10 bg-[url('/mauritius-map.png')] bg-cover bg-center pointer-events-none" />
+              <div className="relative z-10 flex gap-3 mb-6 flex-wrap">
+                <div className="bg-red-500 text-white px-5 py-2 rounded-full font-black shadow-lg text-sm">● LIVE TRACKING</div>
+                <div className="bg-white text-slate-700 px-5 py-2 rounded-full font-black shadow-lg text-sm">MU Route Engine</div>
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-2 rounded-full font-black shadow-lg text-sm">GPS ACTIVE</div>
+              </div>
+
+              <div className="relative h-[300px] overflow-hidden rounded-[28px] border border-blue-100 bg-[#deeeff] shadow-inner">
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 300">
+                  <path d="M100 240 C200 60 600 60 700 180" stroke="#93c5fd" strokeWidth="14" fill="none" strokeLinecap="round" />
+                  <path d="M100 240 C200 60 600 60 700 180" stroke="white" strokeWidth="4" fill="none" strokeDasharray="14 14" />
+                  <circle cx="400" cy="150" r="25" fill="#bfdbfe" opacity="0.5" />
+                  <circle cx="250" cy="185" r="16" fill="#fecaca" opacity="0.4" />
+                </svg>
+
+                <motion.div
+                  animate={{ x: [0, 465], y: [0, -120] }}
+                  transition={{ duration: 6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                  className="absolute left-[80px] bottom-[52px]"
+                >
+                  <div className="relative">
+                    <div className="absolute -inset-3 bg-cyan-400/40 blur-xl rounded-full" />
+                    <div className="relative text-3xl">🚘</div>
+                  </div>
+                </motion.div>
+
+                <div className="absolute left-12 bottom-10">
+                  <div className="w-7 h-7 bg-blue-600 rounded-full border-4 border-white shadow-xl" />
+                  <p className="mt-1 font-black text-slate-800 text-xs">SSR Airport</p>
+                </div>
+                <div className="absolute right-14 top-12">
+                  <div className="w-7 h-7 bg-red-500 rounded-full border-4 border-white shadow-xl" />
+                  <p className="mt-1 font-black text-slate-800 text-xs">AM38 Office</p>
+                </div>
+
+                <div className="absolute right-3 bottom-3 bg-white/95 backdrop-blur-xl rounded-[20px] p-4 shadow-2xl w-[210px]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white flex-shrink-0">
+                      <Car className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-800 text-sm leading-tight">Driver Assigned</p>
+                      <p className="text-slate-500 text-xs">AM38 Airport Delivery</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <div className="bg-slate-100 rounded-xl p-2">
+                      <p className="text-slate-500 text-xs">Distance</p>
+                      <p className="font-black text-blue-700 text-lg">3 km</p>
+                    </div>
+                    <div className="bg-red-50 rounded-xl p-2">
+                      <p className="text-slate-500 text-xs">Status</p>
+                      <p className="font-black text-red-500 text-sm">En Route</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 bg-green-100 text-green-700 rounded-full px-3 py-1 text-center font-black text-xs">
+                    ● LIVE GPS ACTIVE
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3 mt-5">
+                {[["Route", "SSR→AM38"], ["ETA", "02:00"], ["Speed", "72km/h"], ["Lap", "01:55"]].map(([title, value]) => (
+                  <div key={title} className="bg-white/90 rounded-2xl p-3 shadow-md text-center">
+                    <p className="text-slate-500 text-xs">{title}</p>
+                    <p className="font-black text-base text-slate-800 mt-1">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AWARDS */}
+      <Section title="🏆 Award-Winning Excellence" subtitle="Recognized for outstanding service in Mauritius 2023–2025">
+        <div className="grid md:grid-cols-3 gap-8">
+          {AWARDS.map((award, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.1 }}
+              whileHover={{ y: -5 }}
+              className="bg-white/80 backdrop-blur border border-white/80 rounded-2xl p-8 text-center shadow-xl"
+            >
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <award.icon className="w-10 h-10 text-blue-700" />
+              </div>
+              <p className="font-bold text-2xl text-slate-800">{award.name}</p>
+              <p className="text-3xl font-black text-blue-700 mt-1">{award.year}</p>
+              <p className="text-base text-slate-600 mt-2">{award.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </Section>
+
+      {/* PARTNERS + PAYMENTS */}
+      <section className="py-20 bg-gradient-to-br from-blue-500/10 to-red-500/10 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-black text-slate-800 mb-4">🤝 Our Trusted Partners</h2>
+            <p className="text-blue-700 font-black text-xl mb-12">Book with confidence</p>
+            <div className="flex flex-wrap justify-center gap-8">
+              {PARTNERS.map((p, idx) => (
+                <motion.a
+                  key={idx}
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  whileHover={{ y: -8, scale: 1.05 }}
+                  className="bg-white/80 backdrop-blur border border-white/80 rounded-2xl p-8 min-w-[180px] shadow-lg"
+                >
+                  <div className="text-6xl mb-3">{p.logo}</div>
+                  <p className="font-black text-2xl text-slate-800">{p.name}</p>
+                  <div className="flex items-center justify-center gap-1 mt-2">
+                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <span className="font-bold text-slate-600 text-lg">{p.rating}</span>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <ShieldCheck className="w-10 h-10 text-green-600" />
+              <h2 className="text-4xl font-black text-slate-800">Secure Payments</h2>
+            </div>
+            <p className="text-slate-700 text-lg mb-6">Multiple methods accepted</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              {PAYMENT_METHODS.map((m, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ scale: 1.05 }}
+                  className={`${m.bg} ${m.text} px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-md`}
+                >
+                  <span className="text-3xl">{m.logo}</span>
+                  <span>{m.name}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WORLD CLOCK */}
+      <Section title="Live World Clock" subtitle="We serve customers worldwide, 24/7">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-5">
+          {worldCities.map((city, idx) => (
+            <motion.div
+              key={idx}
+              whileHover={{ y: -5 }}
+              className="bg-white/80 backdrop-blur border border-white/80 rounded-2xl p-6 text-center shadow-md"
+            >
+              <p className="text-slate-500 text-sm font-black">{city.code}</p>
+              <p className="text-slate-800 font-black text-xl">{city.city}</p>
+              <p className="text-blue-700 font-black text-2xl mt-3 tracking-wide">
+                {new Intl.DateTimeFormat("en-GB", {
+                  hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: city.tz,
+                }).format(currentTime)}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </Section>
+
+      {/* REVIEWS */}
+      <section className="py-20 bg-gradient-to-br from-blue-500/10 to-red-500/10 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="flex justify-center gap-1 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />)}
+            </div>
+            <h2 className="text-5xl font-black text-slate-800">What Our Customers Say</h2>
+            <p className="text-blue-700 font-black text-xl mt-2">4.9/5 from 10k+ reviews on Google</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {REVIEWS.map((review, idx) => (
+              <motion.div
+                key={review.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+                whileHover={{ y: -5 }}
+                className="bg-white/80 backdrop-blur border border-white/80 rounded-2xl p-6 shadow-md"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-red-500 rounded-full flex items-center justify-center text-white font-black text-2xl">
+                    {review.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-black text-slate-800 text-lg">{review.name}</p>
+                    <p className="text-slate-500 text-base">{review.flag} {review.country}</p>
+                  </div>
+                </div>
+                <div className="flex gap-1 mb-3">
+                  {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                </div>
+                <p className="text-slate-700 text-base leading-relaxed">"{review.text}"</p>
+                <p className="text-slate-400 text-sm mt-3">{review.date}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <Section title="Frequently Asked Questions" subtitle="Find answers to common questions about renting with AM38">
+        <div className="grid md:grid-cols-2 gap-5 max-w-5xl mx-auto">
+          {FAQS.map((faq, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: idx % 2 === 0 ? -15 : 15 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              className="bg-white/80 backdrop-blur border border-white/80 rounded-xl p-6 shadow-md"
+            >
+              <p className="font-black text-slate-800 text-lg mb-2 flex items-start gap-2">
+                <HelpCircle className="w-6 h-6 text-blue-600 flex-shrink-0" /> {faq.q}
+              </p>
+              <p className="text-slate-700 text-base pl-8">{faq.a}</p>
+            </motion.div>
+          ))}
+        </div>
+        <div className="mt-10 text-center">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 text-blue-700 font-black hover:text-blue-800 text-lg transition-all"
+          >
+            ❓ Any Questions? Click Here <ChevronRight className="w-5 h-5 animate-pulse" />
+          </Link>
+        </div>
+      </Section>
+
+      <TermsPreview />
+
+      {/* LEGAL LINKS BAR */}
+      <section className="py-10 bg-gradient-to-br from-blue-500/10 to-red-500/10 backdrop-blur-sm border-t border-white/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-wrap justify-center gap-8 text-base">
+            <Link to="/terms" className="text-blue-700 font-black hover:scale-105 transition">Terms & Conditions</Link>
+            <Link to="/privacy" className="text-blue-700 font-black hover:scale-105 transition">Privacy Policy</Link>
+            <Link to="/refund" className="text-blue-700 font-black hover:scale-105 transition">Refund Policy</Link>
+            <Link to="/gdpr" className="text-blue-700 font-black hover:scale-105 transition">GDPR</Link>
+            <Link to="/legal" className="text-blue-700 font-black hover:scale-105 transition">Legal Information</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER — single, clean */}
+      <footer className="relative overflow-hidden rounded-t-[40px] mt-12">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-950 via-slate-950 to-red-950" />
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute left-0 top-0 w-[400px] h-[400px] bg-blue-500 blur-3xl rounded-full" />
+          <div className="absolute right-0 bottom-0 w-[400px] h-[400px] bg-red-500 blur-3xl rounded-full" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
+          {/* top status bar */}
+          <div className="flex flex-wrap items-center justify-between gap-5 border-b border-white/10 pb-6 mb-10">
+            <div className="text-green-400 font-black text-lg flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block" />
+              LIVE Mauritius Car Rental Platform
+            </div>
+            <div className="flex flex-wrap gap-5 text-white/80 font-semibold text-sm">
+              <span>✈ SSR Airport Delivery</span>
+              <span>🕐 24/7 Support</span>
+              <span>🛡 Secure Booking</span>
+            </div>
+          </div>
+
+          {/* 4-column grid */}
+          <div className="grid lg:grid-cols-4 gap-12">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-4 mb-5">
+                <img
+                  src="/am38-logo.png"
+                  className="w-16 h-16 rounded-2xl shadow-xl bg-white object-contain"
+                  alt="AM38 Logo"
+                />
+                <div>
+                  <h2 className="text-4xl font-black bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
+                    AM38
+                  </h2>
+                  <p className="text-white/60 uppercase tracking-[0.3em] text-xs">Mauritius Mobility</p>
+                </div>
+              </div>
+              <p className="text-white/70 leading-relaxed text-sm">
+                Premium Mauritius vehicle rental experience with airport delivery, smart booking technology,
+                luxury fleet and trusted island support.
+              </p>
+              <div className="mt-6">
+                <p className="text-white/50 mb-3 font-black text-xs tracking-widest uppercase">Secure Payments</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Visa", "Mastercard", "Stripe", "Bank", "Cash"].map((p) => (
+                    <div key={p} className="px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white font-bold text-xs">
+                      {p}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <div>
+              <h3 className="text-2xl font-black text-white mb-5">Navigation</h3>
+              <div className="space-y-3">
+                {["Home", "Fleet", "Explore Mauritius", "Partners", "FAQ", "About Us", "Support"].map((item) => (
+                  <Link
+                    key={item}
+                    to={`/${item === "Home" ? "" : item.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="flex items-center gap-2 text-white/70 hover:text-white transition text-base"
+                  >
+                    <ChevronRight className="w-4 h-4 flex-shrink-0" /> {item}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Why Choose */}
+            <div>
+              <h3 className="text-2xl font-black text-white mb-5">Why Choose AM38</h3>
+              <div className="space-y-3">
+                {[
+                  "No hidden fees",
+                  "Airport delivery",
+                  "Fast booking confirmation",
+                  "Premium maintained fleet",
+                  "24/7 WhatsApp support",
+                  "Tourism assistance",
+                  "Flexible pickup & dropoff",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3 text-white/70 text-sm">
+                    <div className="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <ShieldCheck className="w-4 h-4 text-green-400" />
+                    </div>
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4">
+                <div className="flex items-center gap-1 mb-2">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
+                </div>
+                <p className="text-white text-base font-black">Discover Cars Excellence</p>
+                <p className="text-white/60 text-xs mt-1">2023 • 2024 • 2025 Trusted Service Award</p>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-2xl font-black text-white mb-5">Contact</h3>
+              <div className="space-y-4">
+                {[
+                  { icon: Phone, label: "Phone", value: "+230 5835 7166" },
+                  { icon: MessageCircle, label: "WhatsApp", value: "Available 24/7" },
+                  { icon: Mail, label: "Email", value: "support@am38.com" },
+                  { icon: MapPin, label: "Office", value: "Plaine Magnien, Mauritius" },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-black text-sm">{label}</p>
+                      <p className="text-white/70 text-sm">{value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* bottom copyright */}
+          <div className="border-t border-white/10 mt-12 pt-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-white/50 text-sm">© 2026 AM38 Rent A Car • Mauritius</p>
+            <div className="flex gap-4 flex-wrap">
+              {["Terms", "FAQ", "Support"].map((item) => (
+                <Link
+                  key={item}
+                  to={`/${item.toLowerCase()}`}
+                  className="text-white/70 hover:text-white transition font-bold text-sm px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10"
+                >
+                  {item}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* FLOATING BUTTONS */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        <a href="https://wa.me/23058357166" className="bg-green-500 text-white p-4 rounded-full shadow-xl hover:scale-110 transition">
+          <MessageCircle className="w-6 h-6" />
+        </a>
+        <a href="tel:+23058357166" className="bg-blue-600 text-white p-4 rounded-full shadow-xl hover:scale-110 transition">
+          <Phone className="w-6 h-6" />
+        </a>
+      </div>
+
+      {/* MOBILE BOOK BAR */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-white/80 px-4 py-3 lg:hidden">
+        <button
+          onClick={scrollToBooking}
+          className="w-full bg-gradient-to-r from-blue-600 to-red-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg"
+        >
+          <Car className="w-5 h-5" /> Book Now
+        </button>
+      </div>
+
+      {/* MODALS */}
+      <AnimatePresence>
+        {showDriverModal && (
+          <Modal onClose={() => setShowDriverModal(false)} title="Live Driver Tracking">
+            <div className="h-48 bg-slate-100 rounded-xl mb-4 overflow-hidden border border-slate-200 flex items-center justify-center">
+              <p className="text-slate-500">Live map preview</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="bg-slate-100 rounded-xl p-3"><p className="text-slate-600">Driver</p><p className="text-slate-800 font-bold">Rajesh Kumar</p></div>
+              <div className="bg-slate-100 rounded-xl p-3"><p className="text-slate-600">Vehicle</p><p className="text-slate-800 font-bold">Suzuki Vitara (Blue)</p></div>
+              <div className="bg-slate-100 rounded-xl p-3"><p className="text-slate-600">ETA to Airport</p><p className="text-blue-600 font-bold text-xl">5 min</p></div>
+              <div className="bg-slate-100 rounded-xl p-3"><p className="text-slate-600">Status</p><p className="text-green-600 font-bold">Approaching</p></div>
+            </div>
+            <div className="mt-4 flex gap-2 text-xs text-slate-500 justify-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Live GPS • Updated 2s ago
+            </div>
+          </Modal>
+        )}
+        {showAuthModal && (
+          <Modal onClose={() => setShowAuthModal(false)} title="Login Required">
+            <p className="text-slate-600 text-center mb-6">Please login to track your driver or book a vehicle.</p>
+            <form onSubmit={handleAuth} className="space-y-3">
+              <input
+                type="email"
+                placeholder="Email"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-800"
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-800"
+                required
+              />
+              <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-3 rounded-xl font-bold shadow-md">
+                Login / Register
+              </button>
+            </form>
+            <div className="text-center mt-4">
+              <Link to="/register" className="text-blue-600 text-sm">Create new account</Link>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        .input-premium {
+          width: 100%;
+          padding: 0.5rem 0.75rem;
+          background: rgba(255,255,255,0.88);
+          border: 1px solid rgba(219,234,254,0.9);
+          border-radius: 0.75rem;
+          color: #1e293b;
+          outline: none;
+          font-size: 0.95rem;
+        }
+        .input-premium:focus {
+          box-shadow: 0 0 0 2px rgba(59,130,246,0.45);
+          border-color: #93c5fd;
+        }
+        .label-premium {
+          font-size: 0.72rem;
+          font-weight: 800;
+          color: #334155;
+          margin-bottom: 0.3rem;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        @media (max-width: 1024px) {
+          #booking-section { margin-top: 2rem !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+function InputBlock({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="label-premium">
+        <Icon className="w-3 h-3 text-blue-600" /> {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function CheckBox({
+  id, checked, onChange, label,
+}: {
+  id: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 py-1">
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="w-4 h-4 accent-blue-600"
+      />
+      <label htmlFor={id} className="text-slate-800 text-sm font-medium cursor-pointer select-none">
+        {label}
+      </label>
+    </div>
+  );
+}
+
+function LocationInput({
+  label, value, setValue, show, setShow, suggestions, onSelect,
+}: {
+  label: string;
+  value: string;
+  setValue: (v: string) => void;
+  show: boolean;
+  setShow: (v: boolean) => void;
+  suggestions: { id: string; name: string; type: string; region: string }[];
+  onSelect: (loc: { id: string; name: string; type: string; region: string }) => void;
+}) {
+  return (
+    <div className="relative">
+      <label className="label-premium">
+        <MapPin className="w-3 h-3 text-blue-600" /> {label}
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => { setValue(e.target.value); setShow(true); }}
+        placeholder="SSR Airport"
+        className="input-premium"
+      />
+      <AnimatePresence>
+        {show && suggestions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="absolute top-full left-0 right-0 mt-1 bg-white/98 backdrop-blur-md rounded-xl border border-white/80 z-[200] max-h-60 overflow-auto shadow-xl"
+          >
+            {suggestions.map((loc) => (
+              <button
+                key={loc.id}
+                onClick={() => onSelect(loc)}
+                className="w-full px-3 py-2.5 text-left hover:bg-blue-50 text-slate-800 flex items-center gap-2 text-sm"
+              >
+                <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" /> {loc.name}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function Section({
+  title, subtitle, children,
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="py-20 bg-white/20 backdrop-blur-sm backdrop-saturate-150">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-5xl font-black text-slate-800">{title}</h2>
+          <p className="bg-gradient-to-r from-blue-600 to-red-500 bg-clip-text text-transparent font-black text-xl mt-2">
+            {subtitle}
+          </p>
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function Modal({
+  title, children, onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="bg-white rounded-3xl max-w-2xl w-full p-6 border border-blue-200 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-2xl font-black text-slate-800">{title}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+
+===============================
+FILE: src/components/layout/MainNavbar.tsx
+===============================
+
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Car, Globe, Menu, X, Sparkles, Crown, Headphones, HelpCircle, Handshake, Info } from "lucide-react";
+import { useState } from "react";
+
+function cx(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export default function MainNavbar() {
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+
+  const navItems = [
+    { name: "Fleet", path: "/cars", icon: Car },
+    { name: "Explore", path: "/explore", icon: Sparkles },
+    { name: "Partners", path: "/partners", icon: Handshake },
+    { name: "FAQ", path: "/faq", icon: HelpCircle },
+    { name: "About", path: "/about", icon: Info },
+    { name: "Support", path: "/support", icon: Headphones },
+  ];
+
+  const scrollToBooking = () => {
+    document.getElementById("booking-section")?.scrollIntoView({ behavior: "smooth" });
+    setMobileOpen(false);
+  };
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/20 bg-white/10 backdrop-blur-2xl shadow-md">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+
+        {/* LOGO – French flag style */}
+        <Link to="/" className="flex items-center gap-4 group">
+          <motion.div whileHover={{ scale: 1.05, rotate: 1 }} className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-red-500/30 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition" />
+            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-r from-blue-600 via-white to-red-500 flex items-center justify-center shadow-xl overflow-hidden border border-white/40">
+              <motion.div className="absolute inset-0 bg-white/30" animate={{ x: ["-150%", "150%"] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }} />
+              <span className="text-white font-black text-2xl drop-shadow-md">A</span>
+              <Car className="absolute bottom-1 right-1 w-3 h-3 text-white/70" />
+            </div>
+          </motion.div>
+          <div className="leading-none">
+            <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-white to-red-500 bg-clip-text text-transparent drop-shadow-md">
+              AM38
+            </h1>
+            <p className="text-[9px] tracking-[0.3em] text-slate-700 font-bold mt-1">MAURITIUS MOBILITY</p>
+          </div>
+        </Link>
+
+        {/* DESKTOP NAV */}
+        <div className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-full bg-white/40 border border-white/60 backdrop-blur-sm shadow-sm">
+          {navItems.map((item) => {
+            const active = location.pathname === item.path;
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.name}
+                to={item.path}
+                className={cx(
+                  "relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 group",
+                  active ? "text-blue-700" : "text-slate-700 hover:text-blue-600"
+                )}
+              >
+                <Icon className={cx("w-4 h-4", active ? "text-blue-600" : "text-slate-500 group-hover:text-blue-500")} />
+                <span>{item.name}</span>
+                {active && (
+                  <motion.div layoutId="active-navbar" className="absolute inset-0 rounded-xl bg-blue-100/60 border border-blue-300/40" />
+                )}
+              </NavLink>
+            );
+          })}
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="hidden lg:flex items-center gap-3">
+          {/* Language dropdown */}
+          <div className="relative" onMouseEnter={() => setLangOpen(true)} onMouseLeave={() => setLangOpen(false)}>
+            <button className="px-4 py-2 rounded-full border border-white/50 bg-white/40 backdrop-blur text-slate-700 hover:bg-white/60 flex items-center gap-2 text-sm">
+              <Globe className="w-4 h-4 text-blue-500" /> English
+            </button>
+            <AnimatePresence>
+              {langOpen && (
+                <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute top-full right-0 mt-2 w-40 bg-white/95 backdrop-blur-xl rounded-2xl border border-white/50 shadow-lg overflow-hidden">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-blue-100 transition">
+  <Globe className="w-4 h-4 text-blue-500" />
+  <span>English</span>
+</button>
+
+<button className="w-full flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-blue-100 transition">
+  <span className="text-lg">🇫🇷</span>
+  <span>Français</span>
+</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <Link to="/login" className="px-5 py-2 rounded-full border border-white/50 bg-white/40 text-slate-700 hover:bg-white/60">Login</Link>
+          <Link to="/register" className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-500 to-red-500 text-white font-semibold shadow-md hover:shadow-lg transition">Register</Link>
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={scrollToBooking}
+            className="relative overflow-hidden px-7 py-2 rounded-full font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 shadow-md flex items-center gap-2"
+          >
+            <motion.div className="absolute inset-0 bg-white/20" animate={{ x: ["-120%", "120%"] }} transition={{ duration: 1.5, repeat: Infinity }} />
+            <Car className="w-4 h-4 relative z-10" /><span className="relative z-10">BOOK NOW</span>
+          </motion.button>
+        </div>
+
+        {/* MOBILE BUTTON */}
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 rounded-full bg-white/40 border border-white/50">
+          {mobileOpen ? <X className="w-5 h-5 text-slate-700" /> : <Menu className="w-5 h-5 text-slate-700" />}
+        </button>
+      </div>
+
+      {/* MOBILE MENU */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-2xl border-t border-white/50 p-4">
+            <div className="flex flex-col gap-2">
+              {navItems.map((item) => (
+                <Link key={item.name} to={item.path} onClick={() => setMobileOpen(false)} className="px-4 py-3 rounded-xl text-slate-800 hover:bg-blue-50 flex items-center gap-3">
+                  <item.icon className="w-5 h-5 text-blue-500" /> {item.name}
+                </Link>
+              ))}
+              <div className="flex gap-3 pt-2 border-t border-white/50 mt-2">
+                <Link to="/login" className="flex-1 text-center px-4 py-3 rounded-xl border border-white/50 text-slate-700 bg-white/50">Login</Link>
+                <Link to="/register" className="flex-1 text-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-red-500 text-white font-bold">Register</Link>
+              </div>
+              <button onClick={scrollToBooking} className="mt-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold">BOOK NOW</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+}
+
+
+===============================
+FILE: src/components/layout/Footer.tsx
+===============================
+
+import { Link } from "react-router-dom";
+import { Phone, Mail, MapPin, MessageCircle, Facebook, Instagram, Twitter, Globe } from "lucide-react";
+
+export default function Footer() {
+  return (
+    <footer className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border-t border-white/10 mt-20">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-6 py-20">
+        <div className="grid md:grid-cols-4 gap-14">
+          <div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.45)]">
+                <span className="text-white font-black text-3xl">A</span>
+              </div>
+              <div>
+                <h2 className="text-3xl font-black bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">AM38</h2>
+                <p className="text-xs tracking-[0.35em] text-cyan-300/60 font-bold">MAURITIUS MOBILITY</p>
+              </div>
+            </div>
+            <p className="text-white/60 leading-relaxed">
+              Premium Mauritius airport rental platform with intelligent booking, airport delivery and 24/7 support since 2013.
+            </p>
+            <div className="flex gap-4 mt-8">
+              {[Facebook, Instagram, Twitter, Globe].map((Icon, index) => (
+                <div key={index} className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-cyan-500/10 hover:border-cyan-400/30 transition-all duration-300 cursor-pointer">
+                  <Icon className="w-5 h-5 text-cyan-300" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-black mb-6 text-white">Navigation</h3>
+            <div className="space-y-4 text-white/60">
+              <Link to="/" className="block hover:text-cyan-300 transition-all duration-300">Home</Link>
+              <Link to="/cars" className="block hover:text-cyan-300 transition-all duration-300">Fleet</Link>
+              <Link to="/explore" className="block hover:text-cyan-300 transition-all duration-300">Explore</Link>
+              <Link to="/partners" className="block hover:text-cyan-300 transition-all duration-300">Partners</Link>
+              <Link to="/faq" className="block hover:text-cyan-300 transition-all duration-300">FAQ</Link>
+              <Link to="/support" className="block hover:text-cyan-300 transition-all duration-300">Support</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-black mb-6 text-white">Why AM38</h3>
+            <div className="space-y-4 text-white/60">
+              <p>✓ Airport Delivery</p>
+              <p>✓ Premium Fleet</p>
+              <p>✓ Fast Booking</p>
+              <p>✓ Smart Mobility</p>
+              <p>✓ 24/7 WhatsApp</p>
+              <p>✓ Mauritius Experts</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-black mb-6 text-white">Contact</h3>
+            <div className="space-y-5 text-white/60">
+              <div className="flex gap-3 items-start"><Phone className="w-5 h-5 text-cyan-300 mt-1" /> +230 5835 7166</div>
+              <div className="flex gap-3 items-start"><Mail className="w-5 h-5 text-cyan-300 mt-1" /> support@am38.com</div>
+              <div className="flex gap-3 items-start"><MapPin className="w-5 h-5 text-cyan-300 mt-1" /> Plaine Magnien, Mauritius</div>
+              <div className="flex gap-3 items-start"><MessageCircle className="w-5 h-5 text-cyan-300 mt-1" /> WhatsApp Support 24/7</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 text-white/40 text-sm">
+          <p>© 2026 AM38 Mauritius Mobility. All rights reserved.</p>
+          <div className="flex items-center gap-8">
+            <Link to="/terms" className="hover:text-cyan-300 transition-all">Terms</Link>
+            <Link to="/privacy" className="hover:text-cyan-300 transition-all">Privacy</Link>
+            <Link to="/support" className="hover:text-cyan-300 transition-all">Support</Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+
+===============================
+FILE: src/components/branding/AM38Logo.tsx
+===============================
+
+import { motion } from "framer-motion";
+
+export default function AM38Logo() {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05, rotate: 1 }}
+      className="relative"
+    >
+      {/* glow */}
+      <div className="absolute inset-0 rounded-[28px] bg-gradient-to-r from-blue-500/40 via-white/20 to-red-500/40 blur-2xl" />
+
+      {/* badge */}
+      <div className="relative w-[72px] h-[72px] rounded-[26px] overflow-hidden border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.25)] bg-gradient-to-br from-blue-600 via-white to-red-500 flex items-center justify-center">
+
+        {/* metallic shine */}
+        <motion.div
+          animate={{ x: ["-140%", "140%"] }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            repeatDelay: 1,
+          }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+        />
+
+        {/* stencil text */}
+        <div className="relative z-10 flex flex-col items-center leading-none">
+          <span className="text-[28px] font-black tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]">
+            AM
+          </span>
+
+          <span className="text-[18px] font-black text-slate-900 tracking-[0.18em]">
+            38
+          </span>
+        </div>
+
+        {/* floating reflections */}
+        <div className="absolute top-2 left-2 w-3 h-3 rounded-full bg-white/70 blur-sm" />
+        <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-white/60 blur-sm" />
+      </div>
+    </motion.div>
+  );
+}
+
+
+===============================
+FILE: src/components/maps/MauritiusMap.tsx
+===============================
+
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Car,
+  Clock,
+  Navigation,
+  Fuel,
+  MapPin,
+  Timer,
+} from "lucide-react";
+
+type Point = {
+  x: number;
+  y: number;
+  label: string;
+  type: "airport" | "office" | "city";
+};
+
+export default function MauritiusMap() {
+  const [progress, setProgress] = useState(0);
+  const [eta, setEta] = useState("05:00");
+  const [speed, setSpeed] = useState(62);
+  const [distance, setDistance] = useState(14);
+  const [lapTime, setLapTime] = useState("00:00:00");
+
+  const requestRef = useRef<number | null>(null);
+
+  const points: Point[] = [
+    {
+      x: 130,
+      y: 345,
+      label: "SSR Airport",
+      type: "airport",
+    },
+    {
+      x: 350,
+      y: 260,
+      label: "AM38 Office",
+      type: "office",
+    },
+    {
+      x: 600,
+      y: 170,
+      label: "Grand Baie",
+      type: "city",
+    },
+  ];
+
+  const fullPath = points.reduce((acc, p, i) => {
+    if (i === 0) return `M ${p.x} ${p.y}`;
+    return `${acc} L ${p.x} ${p.y}`;
+  }, "");
+
+  useEffect(() => {
+    let startTime: number | null = null;
+    const duration = 15000;
+
+    const animate = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+
+      const elapsed = timestamp - startTime;
+      const newProgress = (elapsed % duration) / duration;
+
+      setProgress(newProgress);
+
+      const remaining = Math.max(
+        1,
+        Math.ceil((1 - newProgress) * 5)
+      );
+
+      setEta(`0${remaining}:00`);
+
+      setSpeed(
+        60 + Math.floor(Math.sin(elapsed / 1200) * 15)
+      );
+
+      setDistance(
+        Math.max(
+          1,
+          Math.floor((1 - newProgress) * 14)
+        )
+      );
+
+      const totalSeconds = Math.floor(elapsed / 1000);
+
+      const hrs = String(
+        Math.floor(totalSeconds / 3600)
+      ).padStart(2, "0");
+
+      const mins = String(
+        Math.floor((totalSeconds % 3600) / 60)
+      ).padStart(2, "0");
+
+      const secs = String(
+        totalSeconds % 60
+      ).padStart(2, "0");
+
+      setLapTime(`${hrs}:${mins}:${secs}`);
+
+      requestRef.current =
+        requestAnimationFrame(animate);
+    };
+
+    requestRef.current =
+      requestAnimationFrame(animate);
+
+    return () => {
+      if (requestRef.current !== null) {
+        cancelAnimationFrame(
+          requestRef.current
+        );
+      }
+    };
+  }, []);
+
+  const numSegments = points.length - 1;
+
+  const segProgress =
+    progress * numSegments;
+
+  const segIndex = Math.min(
+    Math.floor(segProgress),
+    numSegments - 1
+  );
+
+  const segT =
+    segProgress - segIndex;
+
+  const p1 = points[segIndex];
+  const p2 = points[segIndex + 1];
+
+  const carX =
+    p1.x + (p2.x - p1.x) * segT;
+
+  const carY =
+    p1.y + (p2.y - p1.y) * segT;
+
+  return (
+    <div className="relative h-[520px] w-full overflow-hidden rounded-[36px] border border-white/70 bg-white/35 shadow-[0_25px_80px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
+
+      {/* REAL MAP */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-45 scale-110"
+        style={{
+          backgroundImage:
+            "url('/mauritius-map.png')",
+        }}
+      />
+
+      {/* FRENCH FADE */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/15 via-white/20 to-red-500/15" />
+
+      {/* LIGHT OVERLAY */}
+      <div className="absolute inset-0 bg-white/10 backdrop-brightness-125" />
+
+      {/* GLOW */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        animate={{
+          x: ["-100%", "100%"],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+        }}
+      />
+
+      {/* TOP BAR */}
+      <div className="absolute left-5 top-5 z-30 flex flex-wrap items-center gap-3">
+
+        <div className="flex items-center gap-2 rounded-full bg-red-500 px-4 py-2 text-xs font-black text-white shadow-xl">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+          LIVE TRACKING
+        </div>
+
+        <div className="rounded-full bg-white/85 px-4 py-2 text-xs font-bold text-slate-800 shadow-lg backdrop-blur-xl">
+          🇲🇺 Mauritius Route Engine
+        </div>
+
+        <div className="rounded-full bg-blue-500/90 px-4 py-2 text-xs font-black text-white shadow-lg">
+          F1 TELEMETRY
+        </div>
+      </div>
+
+      {/* SVG */}
+      <svg
+        viewBox="0 0 900 500"
+        className="relative z-10 h-full w-full"
+      >
+        <defs>
+          <linearGradient
+            id="routeGrad"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop
+              offset="0%"
+              stopColor="#2563eb"
+            />
+
+            <stop
+              offset="50%"
+              stopColor="#ffffff"
+            />
+
+            <stop
+              offset="100%"
+              stopColor="#ef4444"
+            />
+          </linearGradient>
+
+          <filter id="mapGlow">
+            <feGaussianBlur
+              stdDeviation="6"
+              result="blur"
+            />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* MAP ISLAND */}
+        <path
+          d="M55 105 Q185 35 350 70 Q520 105 665 85 Q810 65 855 150 Q890 245 805 355 Q705 465 550 425 Q410 390 255 415 Q105 440 60 350 Q25 235 55 105Z"
+          fill="#dff4ff"
+          stroke="#93c5fd"
+          strokeWidth="3"
+          opacity="0.45"
+        />
+
+        {/* FULL ROUTE */}
+        <path
+          d={fullPath}
+          stroke="url(#routeGrad)"
+          strokeWidth="10"
+          strokeDasharray="18 16"
+          fill="none"
+          opacity="0.85"
+          filter="url(#mapGlow)"
+        />
+
+        {/* ACTIVE ROUTE */}
+        <path
+          d={`M ${p1.x} ${p1.y} L ${
+            p1.x + (p2.x - p1.x) * segT
+          } ${
+            p1.y + (p2.y - p1.y) * segT
+          }`}
+          stroke="#22d3ee"
+          strokeWidth="12"
+          fill="none"
+          filter="url(#mapGlow)"
+        />
+
+        {/* MARKERS */}
+        {points.map((p) => (
+          <g key={p.label}>
+            <motion.circle
+              cx={p.x}
+              cy={p.y}
+              r="16"
+              fill={
+                p.type === "airport"
+                  ? "#2563eb"
+                  : p.type === "office"
+                  ? "#ef4444"
+                  : "#16a34a"
+              }
+              stroke="#ffffff"
+              strokeWidth="5"
+              filter="url(#mapGlow)"
+              animate={{
+                scale: [1, 1.15, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+              }}
+            />
+
+            <text
+              x={p.x + 22}
+              y={p.y + 5}
+              className="fill-slate-900 text-[16px] font-black"
+            >
+              {p.label}
+            </text>
+          </g>
+        ))}
+
+        {/* CAR */}
+        <g
+          transform={`translate(${carX - 22}, ${
+            carY - 22
+          })`}
+        >
+          <motion.circle
+            r="26"
+            cx="22"
+            cy="22"
+            fill="#22d3ee"
+            opacity="0.25"
+            animate={{
+              scale: [1, 1.6, 1],
+            }}
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+            }}
+          />
+
+          <circle
+            cx="22"
+            cy="22"
+            r="18"
+            fill="#0ea5e9"
+            stroke="#ffffff"
+            strokeWidth="4"
+          />
+
+          <foreignObject
+            x="10"
+            y="10"
+            width="24"
+            height="24"
+          >
+            <Car className="h-6 w-6 text-white" />
+          </foreignObject>
+        </g>
+      </svg>
+
+      {/* BOTTOM TELEMETRY */}
+      <div className="absolute bottom-5 left-5 right-5 z-30 grid grid-cols-2 md:grid-cols-4 gap-3">
+
+        <div className="rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-blue-700 font-black text-sm">
+            <Navigation className="h-4 w-4" />
+            Route
+          </div>
+
+          <p className="mt-2 text-slate-800 font-bold">
+            SSR → AM38
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-green-700 font-black text-sm">
+            <Clock className="h-4 w-4" />
+            ETA
+          </div>
+
+          <p className="mt-2 text-slate-900 text-2xl font-black">
+            {eta}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-red-700 font-black text-sm">
+            <Fuel className="h-4 w-4" />
+            Speed
+          </div>
+
+          <p className="mt-2 text-slate-900 text-2xl font-black">
+            {speed} km/h
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/70 bg-white/85 p-4 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-cyan-700 font-black text-sm">
+            <Timer className="h-4 w-4" />
+            Lap Time
+          </div>
+
+          <p className="mt-2 text-slate-900 text-xl font-black">
+            {lapTime}
+          </p>
+        </div>
+      </div>
+
+      {/* DRIVER CARD */}
+      <motion.div
+        animate={{
+          y: [0, -5, 0],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+        }}
+        className="absolute right-5 top-20 z-30 w-[260px] rounded-3xl border border-white/80 bg-white/80 p-5 shadow-2xl backdrop-blur-xl"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-lg">
+            <Car className="h-7 w-7" />
+          </div>
+
+          <div>
+            <p className="text-slate-900 font-black">
+              Driver Assigned
+            </p>
+
+            <p className="text-sm text-slate-600">
+              AM38 Airport Delivery
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+
+          <div className="rounded-2xl bg-blue-50 p-3">
+            <p className="text-slate-500">
+              Distance
+            </p>
+
+            <p className="font-black text-blue-700">
+              {distance} km
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-red-50 p-3">
+            <p className="text-slate-500">
+              Status
+            </p>
+
+            <p className="font-black text-red-500">
+              En Route
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-xs font-bold text-green-700">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+          LIVE GPS ACTIVE
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+
+===============================
+FILE: src/App.tsx
+===============================
+
+import {
+  Routes,
+  Route,
+} from "react-router-dom";
+
+import MainLayout from "./layout/MainLayout";
+
+import Landing from "./pages/Landing";
+import Cars from "./pages/Cars";
+import Explore from "./pages/Explore";
+import Partners from "./pages/Partners";
+import FAQ from "./pages/FAQ";
+import About from "./pages/About";
+import Support from "./pages/Support";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import OAuthSuccess from "./pages/OAuthSuccess";
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        element={<MainLayout />}
+      >
+        <Route
+          path="/"
+          element={<Landing />}
+        />
+
+        <Route
+          path="/cars"
+          element={<Cars />}
+        />
+
+        <Route
+          path="/explore"
+          element={<Explore />}
+        />
+
+        <Route
+          path="/partners"
+          element={<Partners />}
+        />
+
+        <Route
+          path="/faq"
+          element={<FAQ />}
+        />
+
+        <Route
+          path="/about"
+          element={<About />}
+        />
+
+        <Route
+          path="/support"
+          element={<Support />}
+        />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        <Route
+          path="/oauth-success"
+          element={<OAuthSuccess />}
+        />
+      </Route>
+    </Routes>
+  );
+}
+
+export default App;
+
+
+===============================
+FILE: src/main.tsx
+===============================
+
+import "@fontsource/orbitron/400.css";
+import "@fontsource/orbitron/700.css";
+import "@fontsource/space-grotesk/400.css";
+import "@fontsource/space-grotesk/700.css";
+import "@fontsource/rajdhani/500.css";
+import "@fontsource/rajdhani/700.css";
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
+
+import "./i18n";
+import "./index.css";
+import "./styles/luxury.css";
+
+import App from "./App";
+import { AuthProvider } from "./context/AuthContext";
+import { CurrencyProvider } from "./context/CurrencyContext";
+import { LanguageProvider } from "./context/LanguageContext";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CurrencyProvider>
+          <LanguageProvider>
+            <BrowserRouter>
+              <App />
+              <Toaster position="top-right" />
+            </BrowserRouter>
+          </LanguageProvider>
+        </CurrencyProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+
+
+===============================
+FILE: src/index.css
+===============================
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply m-0 p-0 box-border;
+  }
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-gradient-to-br from-slate-950 via-purple-950/20 to-slate-950 text-white overflow-x-hidden;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-black/30 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gradient-to-b from-cyan-500 to-purple-600 rounded-full;
+  }
+  ::selection {
+    @apply bg-cyan-500 text-black;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+  .glass-dark {
+    @apply backdrop-blur-md bg-black/30 border border-white/10;
+  }
+  .glass-heavy {
+    @apply backdrop-blur-xl bg-black/50 border border-white/20;
+  }
+  .neon-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400;
+  }
+  .neon-border {
+    @apply border border-cyan-500/50 shadow-neon;
+  }
+  .cyber-grid {
+    background-image: 
+      linear-gradient(to right, rgba(0,212,255,0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,212,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+}
+
+@layer components {
+  .btn-neon {
+    @apply relative px-8 py-4 rounded-2xl font-bold text-white overflow-hidden
+           transition-all duration-300 hover:scale-105 active:scale-95;
+    background: linear-gradient(135deg, #00d4ff 0%, #b026ff 100%);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+  .btn-neon::before {
+    content: '';
+    @apply absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent;
+    transition: left 0.5s ease;
+  }
+  .btn-neon:hover::before {
+    left: 100%;
+  }
+  .input-futuristic {
+    @apply w-full bg-white/5 backdrop-blur border border-white/20 rounded-2xl px-6 py-4
+           text-white placeholder-white/50 transition-all duration-300
+           focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none;
+  }
+}
+
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0px rgba(0,212,255,0); }
+  50% { box-shadow: 0 0 20px rgba(0,212,255,0.3); }
+}
+
+
+===============================
+FILE: src/lib/api.ts
+===============================
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:4000/api";
+
+async function handleResponse(res: Response) {
+  let data: any = {};
+
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      data?.message ||
+      "Request failed"
+    );
+  }
+
+  return data;
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  const headers: Record<string, string> = {};
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return headers;
+}
+
+export async function fetchAPI(
+  path: string,
+  options: RequestInit = {},
+  authRequired = true
+) {
+  const token = localStorage.getItem("token");
+
+  const headers: Record<string, string> = {};
+
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] =
+      "application/json";
+  }
+
+  if (token && authRequired) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+  if (options.headers) {
+    Object.assign(
+      headers,
+      options.headers as any
+    );
+  }
+
+  const res = await fetch(
+    `${API_URL}${path}`,
+    {
+      ...options,
+      headers,
+    }
+  );
+
+  return handleResponse(res);
+}
+
+// ============================================================
+// AUTH API
+// ============================================================
+export const loginUser = (data: any) =>
+  fetchAPI(
+    "/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    false
+  );
+
+export const registerUser = (data: any) =>
+  fetchAPI(
+    "/auth/register",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    false
+  );
+
+export const fetchMe = () =>
+  fetchAPI("/auth/me");
+
+// ============================================================
+// CARS API
+// ============================================================
+export const fetchCars = () =>
+  fetchAPI("/cars", {}, false);
+
+export const fetchCarById = (
+  id: string | number
+) =>
+  fetchAPI(
+    `/cars/${id}`,
+    {},
+    false
+  );
+
+// ============================================================
+// BOOKINGS API
+// ============================================================
+export const fetchBookings = () =>
+  fetchAPI("/bookings");
+
+export const fetchBookingById = (id: string | number) =>
+  fetchAPI(`/bookings/${id}`);
+
+export const createBooking = (
+  data: any
+) =>
+  fetchAPI("/bookings", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const cancelBooking = (id: string | number) =>
+  fetchAPI(`/bookings/${id}/cancel`, {
+    method: "PUT",
+  });
+
+// ============================================================
+// ADMIN API
+// ============================================================
+export const fetchAdminBookings = (
+  params?: any
+) => {
+  const query = new URLSearchParams();
+
+  Object.entries(
+    params || {}
+  ).forEach(
+    ([k, v]) => {
+      if (
+        v !== undefined &&
+        v !== null
+      ) {
+        query.append(
+          k,
+          String(v)
+        );
+      }
+    }
+  );
+
+  return fetchAPI(
+    `/admin/bookings?${query}`
+  );
+};
+
+export const fetchAdminDashboard = () =>
+  fetchAPI("/admin/dashboard");
+
+export const fetchAdminTicker = () =>
+  fetchAPI("/admin/ticker");
+
+export const fetchAdminAvailability = (
+  start: string,
+  end: string
+) =>
+  fetchAPI(
+    `/admin/availability?start=${start}&end=${end}`
+  );
+
+export const fetchAdminTickets = (
+  params?: any
+) => {
+  const query = new URLSearchParams();
+
+  if (params?.status)
+    query.append(
+      "status",
+      params.status
+    );
+
+  if (params?.priority)
+    query.append(
+      "priority",
+      params.priority
+    );
+
+  if (params?.q)
+    query.append(
+      "q",
+      params.q
+    );
+
+  return fetchAPI(
+    `/admin/tickets?${query}`
+  );
+};
+
+export const fetchAdminTicket = (
+  id: number
+) =>
+  fetchAPI(
+    `/admin/tickets/${id}`
+  );
+
+export const sendAdminTicketMessage = (
+    id: number,
+    message: string,
+    attachment?: File | null
+  ) => {
+    const fd = new FormData();
+    fd.append("message", message);
+
+    if (attachment) {
+      fd.append("attachment", attachment);
+    }
+
+    return fetchAPI(
+      `/admin/tickets/${id}/messages`,
+      {
+        method: "POST",
+        body: fd,
+      }
+    );
+  };
+
+export const updateAdminBooking = (
+    id: number,
+    payload: any
+  ) =>
+    fetchAPI(
+      `/admin/bookings/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+export const updateAdminBookingPayment = (
+    id: number,
+    payload: any
+  ) =>
+    fetchAPI(
+      `/admin/bookings/${id}/payment`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+export const updateAdminTicket = (
+    id: number,
+    payload: any
+  ) =>
+    fetchAPI(
+      `/admin/tickets/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+export const updateBookingStatus = (
+  id: string | number,
+  status: string
+) =>
+  fetchAPI(
+    `/admin/bookings/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        status,
+      }),
+    }
+  );
+
+export const fetchAdminUsers = () =>
+  fetchAPI("/admin/users");
+
+export const updateUserRole = (
+  id: string | number,
+  role: string
+) =>
+  fetchAPI(
+    `/admin/users/${id}/role`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ role }),
+    }
+  );
+
+// ============================================================
+// PAYMENTS API
+// ============================================================
+export const createPaymentIntent = (data: any) =>
+  fetchAPI("/payments/create-intent", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const confirmPayment = (data: any) =>
+  fetchAPI("/payments/confirm", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+// ============================================================
+// INVOICES API
+// ============================================================
+export const fetchInvoices = () =>
+  fetchAPI("/invoices");
+
+export const fetchInvoiceById = (id: string | number) =>
+  fetchAPI(`/invoices/${id}`);
+
+export const fetchInvoicePdf = (id: string | number) =>
+  `${API_URL}/invoices/${id}/pdf`;
+
+// ============================================================
+// SUPPORT / TICKETS API
+// ============================================================
+export const fetchTickets = () =>
+  fetchAPI("/tickets/my");
+
+export const fetchTicketById = (id: string | number) =>
+  fetchAPI(`/tickets/${id}`);
+
+export const createTicket = (data: any) =>
+  fetchAPI("/tickets", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const addTicketMessage = (id: string | number, message: string) =>
+  fetchAPI(`/tickets/${id}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+
+export const updateTicketStatus = (id: string | number, status: string) =>
+  fetchAPI(`/admin/tickets/${id}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+  });
+
+// ============================================================
+// EXPLORE / LOCATIONS API
+// ============================================================
+export const fetchLocations = () =>
+  fetchAPI("/locations", {}, false);
+
+export const fetchWeather = (location: string) =>
+  fetchAPI(`/weather/${encodeURIComponent(location)}`, {}, false);
+
+// ============================================================
+// WISHLIST API (Local Storage based - kept for consistency)
+// ============================================================
+export const getWishlist = (): number[] => {
+  const saved = localStorage.getItem("wishlist");
+  return saved ? JSON.parse(saved) : [];
+};
+
+export const saveWishlist = (wishlist: number[]) => {
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+};
+
+export const addToWishlist = (carId: number) => {
+  const wishlist = getWishlist();
+  if (!wishlist.includes(carId)) {
+    wishlist.push(carId);
+    saveWishlist(wishlist);
+  }
+  return wishlist;
+};
+
+export const removeFromWishlist = (carId: number) => {
+  const wishlist = getWishlist();
+  const newWishlist = wishlist.filter(id => id !== carId);
+  saveWishlist(newWishlist);
+  return newWishlist;
+};
+
+export const isInWishlist = (carId: number): boolean => {
+  return getWishlist().includes(carId);
+};
+
+// ============================================================
+// PERSONALIZATION API (Local Storage based)
+// ============================================================
+export interface PersonalizationData {
+  carId: number;
+  carName: string;
+  personalNote: string;
+  occasion: string;
+  extraRequests: {
+    childSeat: boolean;
+    gps: boolean;
+    wifi: boolean;
+    cooler: boolean;
+    driver: boolean;
+  };
+  date: string;
+}
+
+export const getPersonalization = (carId: number): PersonalizationData | null => {
+  const saved = localStorage.getItem(`personalization_${carId}`);
+  return saved ? JSON.parse(saved) : null;
+};
+
+export const savePersonalization = (carId: number, data: PersonalizationData) => {
+  localStorage.setItem(`personalization_${carId}`, JSON.stringify(data));
+};
+
+export const removePersonalization = (carId: number) => {
+  localStorage.removeItem(`personalization_${carId}`);
+};
+
+/* ==========================================================
+   VERIFICATION API
+========================================================== */
+
+export async function fetchMyVerification() {
+  return handleResponse(
+    await fetch(`${API_URL}/verification/me`, {
+      credentials: "include",
+      headers: getAuthHeaders(),
+    })
+  );
+}
+
+export async function fetchAdminVerifications(params?: any) {
+  const query = new URLSearchParams();
+
+  if (params?.status) query.append("status", params.status);
+  if (params?.q) query.append("q", params.q);
+  if (params?.country) query.append("country", params.country);
+  if (params?.riskLevel) query.append("riskLevel", params.riskLevel);
+
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications?${query.toString()}`,
+      {
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+export async function fetchAdminVerification(id: number) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${id}`,
+      {
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+export async function updateAdminVerification(
+  id: number,
+  payload: any
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    )
+  );
+}
+
+export async function uploadVerificationDocuments(
+  type: string,
+  file: File
+) {
+  const formData = new FormData();
+
+  formData.append("type", type);
+  formData.append("file", file);
+
+  return handleResponse(
+    await fetch(
+      `${API_URL}/verification/upload`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: getAuthHeaders(),
+        body: formData,
+      }
+    )
+  );
+}
+
+export async function approveVerification(
+  verificationId: number
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${verificationId}/approve`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+export async function rejectVerification(
+  verificationId: number,
+  reason: string
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${verificationId}/reject`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason }),
+      }
+    )
+  );
+}
+
+export async function resendVerificationRequest(
+  verificationId: number
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${verificationId}/resend`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+// GET helper for ProfileRequiredModal
+export const get = async (path: string) => {
+  return fetchAPI(path, {}, true);
+};
+
+// Default export for convenience
+const api = {
+  get,
+  post: (path: string, data: any) => fetchAPI(path, { method: "POST", body: JSON.stringify(data) }),
+  put: (path: string, data: any) => fetchAPI(path, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (path: string) => fetchAPI(path, { method: "DELETE" }),
+};
+
+export { api };
+
+
+===============================
+FILE: src/context/AuthContext.tsx
+===============================
+
+  import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useMemo,
+  } from "react";
+
+  import {
+    loginUser,
+    registerUser,
+  } from "@/lib/api";
+
+  type AuthContextType = {
+    user: any;
+    token: string | null;
+    loading: boolean;
+    isAuthenticated: boolean;
+
+    login: (
+      email: string,
+      password: string
+    ) => Promise<any>;
+
+    register: (
+      data: any
+    ) => Promise<any>;
+
+    logout: () => void;
+  };
+
+  const AuthContext =
+    createContext<AuthContextType>({
+      user: null,
+      token: null,
+      loading: true,
+      isAuthenticated: false,
+
+      login: async () => ({}),
+
+      register: async () => ({}),
+
+      logout: () => {},
+    });
+
+  export function AuthProvider({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+
+    const [user, setUser] =
+      useState<any>(null);
+
+    const [token, setToken] =
+      useState<string | null>(
+        localStorage.getItem(
+          "token"
+        )
+      );
+
+    const [loading, setLoading] =
+      useState(true);
+
+    useEffect(() => {
+
+      const storedUser =
+        localStorage.getItem(
+          "user"
+        );
+
+      if (storedUser) {
+
+        setUser(
+          JSON.parse(
+            storedUser
+          )
+        );
+      }
+
+      setLoading(false);
+
+    }, []);
+
+    async function login(
+      email: string,
+      password: string
+    ) {
+
+      const response =
+        await loginUser({
+          email,
+          password,
+        });
+
+      if (response?.token) {
+
+        localStorage.setItem(
+          "token",
+          response.token
+        );
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(
+            response.user
+          )
+        );
+
+        setToken(
+          response.token
+        );
+
+        setUser(
+          response.user
+        );
+      }
+
+      return response;
+    }
+
+    async function register(
+      data: any
+    ) {
+
+      const response =
+        await registerUser(
+          data
+        );
+
+      if (response?.token) {
+
+        localStorage.setItem(
+          "token",
+          response.token
+        );
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(
+            response.user
+          )
+        );
+
+        setToken(
+          response.token
+        );
+
+        setUser(
+          response.user
+        );
+      }
+
+      return response;
+    }
+
+    function logout() {
+
+      localStorage.removeItem(
+        "token"
+      );
+
+      localStorage.removeItem(
+        "user"
+      );
+
+      setToken(null);
+
+      setUser(null);
+
+      window.location.href =
+        "/login";
+    }
+
+    const value = useMemo(
+      () => ({
+        user,
+        token,
+        loading,
+
+        isAuthenticated:
+          !!token,
+
+        login,
+        register,
+        logout,
+      }),
+
+      [
+        user,
+        token,
+        loading,
+      ]
+    );
+
+    return (
+      <AuthContext.Provider
+        value={value}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
+
+  export const useAuth = () =>
+    useContext(AuthContext);
+
+
+===============================
+FILE: package.json
+===============================
+
+{
+  "name": "carrent-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/orbitron": "^5.2.8",
+    "@fontsource/rajdhani": "^5.2.7",
+    "@fontsource/space-grotesk": "^5.2.10",
+    "@hookform/resolvers": "^5.4.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@react-google-maps/api": "^2.20.8",
+    "@react-spring/web": "^10.1.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@stripe/react-stripe-js": "^6.4.0",
+    "@stripe/stripe-js": "^9.7.0",
+    "@tanstack/react-query": "^5.101.0",
+    "@types/react-big-calendar": "^1.16.3",
+    "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.16.1",
+    "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cors": "^2.8.6",
+    "currency.js": "^2.0.4",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
+    "dotenv-safe": "^9.1.0",
+    "eslint-plugin-security": "^4.0.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.1",
+    "framer-motion": "^12.40.0",
+    "helmet": "^8.1.0",
+    "html2canvas": "^1.4.1",
+    "i18next": "^25.10.10",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "jspdf": "^4.2.1",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.564.0",
+    "multer": "^2.1.1",
+    "mysql2": "^3.22.5",
+    "newsapi": "^2.4.1",
+    "nodemailer": "^8.0.10",
+    "nprogress": "^0.2.0",
+    "otp-generator": "^4.0.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.4",
+    "react-big-calendar": "^1.19.4",
+    "react-calendar": "^6.0.1",
+    "react-circular-progressbar": "^2.2.0",
+    "react-country-flag": "^3.1.0",
+    "react-datepicker": "^9.1.0",
+    "react-dom": "^19.2.4",
+    "react-dropzone": "^15.0.0",
+    "react-hook-form": "^7.77.0",
+    "react-hot-toast": "^2.6.0",
+    "react-i18next": "^16.6.6",
+    "react-icon": "^1.0.0",
+    "react-intersection-observer": "^10.0.3",
+    "react-leaflet": "^5.0.0",
+    "react-markdown": "^10.1.0",
+    "react-otp-input": "^3.1.1",
+    "react-parallax-tilt": "^1.7.328",
+    "react-phone-number-input": "^3.4.17",
+    "react-player": "^3.4.0",
+    "react-router-dom": "^7.17.0",
+    "react-select": "^5.10.2",
+    "react-spinners": "^0.17.0",
+    "react-webcam": "^7.2.0",
+    "recharts": "^3.8.1",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "swiper": "^12.1.4",
+    "tailwind-merge": "^3.6.0",
+    "three": "^0.184.0",
+    "uuid": "^13.0.0",
+    "workbox-window": "^7.4.1",
+    "xlsx": "^0.18.5",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/helmet": "^0.0.48",
+    "@types/html2canvas": "^0.5.35",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^25.6.0",
+    "@types/nprogress": "^0.2.3",
+    "@types/qrcode.react": "^1.0.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.59.2",
+    "@typescript-eslint/parser": "^8.59.2",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "postcss": "^8.5.15",
+    "prettier": "^3.8.3",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\images}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\mock}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\partners}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\pdfs}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\about-beach.avif}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\about-us.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\about.mp4}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\aboutus_image.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\airport.jpeg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\am38-airport-backup.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\am38-airport.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\am38-logo.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\grid-pattern.svg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\hero-road.avif}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\manifest.json}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\photo_landing.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\robots.txt}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\sitemap.xml}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\video.mp4}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\vitara_image.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\aqua.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\ertiga.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\magnite.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\shuttle.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\swift.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\vitara.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\vitz.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\cars\yaris.jpg}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\images\backgrounds}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\images\backgrounds\global-luxury-bg.jpg.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\mock\cars.json}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\partners\carjet.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\partners\discovercars.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\partners\economybooking.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\partners\rentiles.png}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\pdfs\Amendments.pdf}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\pdfs\condition.pdf}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\pdfs\Legal.pdf}
+@{FullName=D:\dev\carrent-pro\frontend\carrent-frontend\public\pdfs\refund.pdf}

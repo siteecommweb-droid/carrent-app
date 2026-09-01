@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+
+  /* NEW LIGHT THEME BACKGROUND - SAFELY REPLACED */
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8fafc 35%,
+      #eff6ff 60%,
+      #ffffff 100%
+    );
+
+  /* NEW TEXT COLOR FOR LIGHT THEME */
+  color: #0f172a;
+
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+
+  scroll-behavior: smooth;
+
+  overflow-x: hidden;
+}
+
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  /* SAFELY REMOVED DARK GRID, ADDED SUBTLE LIGHT GRID */
+  background:
+    linear-gradient(
+      rgba(0,0,0,0.02) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,0.02) 1px,
+      transparent 1px
+    );
+
+  background-size: 40px 40px;
+
+  pointer-events: none;
+
+  z-index: -1;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  transition:
+    all 0.25s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* UPDATED FOR LIGHT THEME - SAFELY MODIFIED */
+input,
+textarea,
+select {
+  background: rgba(0, 0, 0, 0.03);
+
+  border:
+    1px solid rgba(0, 0, 0, 0.1);
+
+  color: #0f172a;
+
+  border-radius: 14px;
+
+  padding: 12px;
+
+  outline: none;
+
+  transition:
+    all 0.25s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgb(239 68 68);
+
+  box-shadow:
+    0 0 0 3px rgba(239,68,68,0.15);
+}
+
+/* UPDATED FOR LIGHT THEME */
+::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+/* UPDATED FOR LIGHT THEME - MATCHING NEW BACKGROUND */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ========== NEW UTILITY CLASSES - SAFELY ADDED ========== */
+/* THESE DO NOT AFFECT EXISTING CODE - ONLY ADD NEW STYLES */
+
+.text-brand {
+  @apply bg-gradient-to-r
+  from-red-600
+  via-orange-500
+  to-red-600
+  bg-clip-text
+  text-transparent;
+}
+
+.card-glass {
+  @apply bg-white/80
+  backdrop-blur-xl
+  border border-slate-200
+  shadow-xl;
+}
+
+.section-light {
+  @apply bg-white text-slate-900;
+}
+
+/* ========== END NEW CLASSES ========== */

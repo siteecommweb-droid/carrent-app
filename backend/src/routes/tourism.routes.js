@@ -1,0 +1,9 @@
+router.get("/places", getPlaces);
+router.get("/featured", getFeaturedPlaces);
+router.get("/recommendations", getAIRecommendations);
+router.post("/favorites", saveFavorite);
+router.post("/trip-plan", createTripPlan);
+router.post("/review", addReview);
+router.get("/analytics", getTourismAnalytics);
+router.post("/driver-booking", createDriverBooking);
+router.post("/support-ticket", createSupportTicket);

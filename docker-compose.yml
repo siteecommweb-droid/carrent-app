@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_HOST=host.docker.internal
+    restart: always
+
+  frontend:
+    build: ./frontend/carrent-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: always

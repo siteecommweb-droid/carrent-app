@@ -1,0 +1,35 @@
+body {
+  background: linear-gradient(
+    to bottom,
+    #ffffff,
+    #f8f9fb,
+    #edf2f7
+  );
+
+  color: #111827;
+
+  font-family: Inter, sans-serif;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.75);
+
+  backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255,255,255,0.5);
+
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.08);
+
+  border-radius: 24px;
+}
+
+.french-gradient {
+  background:
+    linear-gradient(
+      90deg,
+      #0055A4 0%,
+      #ffffff 50%,
+      #EF4135 100%
+    );
+}

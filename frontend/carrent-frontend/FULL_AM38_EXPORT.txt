@@ -1,0 +1,1890 @@
+
+
+===============================
+FILE: src/pages/Cars.tsx
+===============================
+
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Search, Filter, ChevronDown, User, DoorOpen, BriefcaseBusiness,
+  Fuel, Heart, Share2, MapPin, Star, Zap, ShieldCheck, Clock,
+  Gauge, Car, Wifi, Coffee, Snowflake, Phone, Battery, Award,
+  TrendingUp, Calendar, Info, Eye, ThumbsUp, CheckCircle, XCircle,
+  RotateCw, Maximize2, Minimize2, Play, Pause, MessageCircle,
+  Gift, Sparkles, Trophy, Headphones, Wallet, Camera, Route,
+  Luggage, Users, Wind, Sun, Moon, Cloud, Volume2, VolumeX,
+  AlertCircle, CreditCard, Navigation, Compass, Thermometer, WindIcon
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Tilt from "react-parallax-tilt";
+import { useBooking } from "@/context/BookingContext";
+import { useCurrency } from "@/context/CurrencyContext";
+import { useAuth } from "@/context/AuthContext";
+import { fetchAPI } from "@/lib/api";
+import toast from "react-hot-toast";
+import { getCarImage } from "@/utils/carImage";
+
+function getTranslation(key: string): string {
+  const lang = localStorage.getItem("preferredLanguage") || "en";
+  const translations: Record<string, Record<string, string>> = {
+    en: {
+      title: "Elite Vehicle Marketplace — Mauritius",
+      subtitle: "Real-time fleet intelligence, transparent pricing, and smart booking",
+      search: "Search vehicles, brands, categories...",
+      available: "vehicles available",
+      perday: "per day",
+      book: "Book now",
+      instant: "Instant booking",
+      high: "High demand fleet",
+      secure: "Secure checkout",
+      ranking: "Smart ranking",
+      filter: "filter",
+      priceRange: "Price Range (per day)",
+      seats: "Seats",
+      fuelType: "Fuel Type",
+      transmission: "Transmission",
+      category: "Category",
+      clearfilter: "Clear all filters",
+      petrol: "Petrol",
+      diesel: "Diesel",
+      electric: "Electric",
+      hybrid: "Hybrid",
+      manual: "Manual",
+      auto: "Automatic",
+      economy: "Economy",
+      suv: "SUV",
+      luxury: "Luxury",
+      popular: "Popular",
+      bestDeal: "Best deal",
+      instantBadge: "Instant booking",
+      freeCancel: "Free cancellation",
+      viewingNow: "viewing now",
+      onlyLeft: "Only",
+      left: "left",
+      seatsCount: "seats",
+      doorCount: "doors",
+      bagsCount: "bags",
+      sortRecommended: "Smart ranking",
+      sortPriceLow: "Price low",
+      sortPriceHigh: "Price high",
+      sortRating: "Top rated",
+      noResults: "No vehicles match your search",
+      addToWishlist: "Add to wishlist",
+      removeFromWishlist: "Remove from wishlist",
+      share: "Share",
+      specifications: "Full Specifications",
+      features: "Key Features",
+      whyChoose: "Why choose this car",
+      view360: "360° View",
+      stopRotation: "Stop",
+      startRotation: "Rotate",
+      trustedBy: "Trusted by",
+      customers: "customers",
+      satisfaction: "Satisfaction rate",
+      quickActions: "Quick Actions",
+      bestValue: "Best Value",
+      limitedOffer: "Limited Offer",
+      categoryRef: "Class",
+      freeAirport: "Free airport assistance",
+      localSupport: "Mauritius local travel support",
+      luggageHelp: "Unlimited luggage help",
+      chauffeurService: "Optional chauffeur service",
+      hotelAssistance: "Hotel & Airbnb booking assistance",
+      virtualTour: "Virtual Tour",
+      personalize: "Personalize Your Trip",
+      addComment: "Add personal note",
+      occasions: "Special Occasions",
+      birthday: "Birthday",
+      anniversary: "Anniversary",
+      honeymoon: "Honeymoon",
+      business: "Business Trip",
+      family: "Family Vacation",
+      wedding: "Wedding",
+      floatingPromo: "🔥 Limited Time Offer",
+      bookNow: "Book Now",
+      viewDetails: "View Details",
+      instantConfirmation: "Instant Confirmation",
+      bestPrice: "Best Price Guarantee",
+      freeMileage: "Free Mileage",
+      insurance: "Full Insurance",
+      roadside: "24/7 Roadside",
+      climate: "Climate Control",
+      bluetooth: "Bluetooth",
+      usb: "USB Charging",
+      backupCam: "Backup Camera",
+      cruise: "Cruise Control",
+      keyless: "Keyless Entry",
+    },
+    fr: {
+      title: "Marché de Véhicules Elite — Maurice",
+      subtitle: "Flotte en temps réel, prix transparents et réservation intelligente",
+      search: "Rechercher véhicules, marques...",
+      available: "véhicules disponibles",
+      perday: "par jour",
+      book: "Réserver",
+      instant: "Réservation instantanée",
+      high: "Forte demande",
+      secure: "Paiement sécurisé",
+      ranking: "Classement intelligent",
+      filter: "Filtres",
+      priceRange: "Prix (par jour)",
+      seats: "Places",
+      fuelType: "Carburant",
+      transmission: "Transmission",
+      category: "Catégorie",
+      clearfilter: "Effacer tous les filtres",
+      petrol: "Essence",
+      diesel: "Diesel",
+      electric: "Électrique",
+      hybrid: "Hybride",
+      manual: "Manuelle",
+      auto: "Automatique",
+      economy: "Économique",
+      suv: "SUV",
+      luxury: "Luxe",
+      popular: "Populaire",
+      bestDeal: "Meilleure offre",
+      instantBadge: "Réservation instantanée",
+      freeCancel: "Annulation gratuite",
+      viewingNow: "regardent maintenant",
+      onlyLeft: "Plus que",
+      left: "disponibles",
+      seatsCount: "places",
+      doorCount: "portes",
+      bagsCount: "bagages",
+      sortRecommended: "Classement intelligent",
+      sortPriceLow: "Prix croissant",
+      sortPriceHigh: "Prix décroissant",
+      sortRating: "Mieux notés",
+      noResults: "Aucun véhicule ne correspond",
+      addToWishlist: "Ajouter aux favoris",
+      removeFromWishlist: "Retirer des favoris",
+      share: "Partager",
+      specifications: "Caractéristiques complètes",
+      features: "Points forts",
+      whyChoose: "Pourquoi choisir",
+      view360: "Vue 360°",
+      stopRotation: "Arrêter",
+      startRotation: "Rotation",
+      trustedBy: "Approuvé par",
+      customers: "clients",
+      satisfaction: "Taux de satisfaction",
+      quickActions: "Actions rapides",
+      bestValue: "Meilleur rapport qualité",
+      limitedOffer: "Offre limitée",
+      categoryRef: "Classe",
+      freeAirport: "Assistance aéroport gratuite",
+      localSupport: "Support voyage local Maurice",
+      luggageHelp: "Aide bagages illimitée",
+      chauffeurService: "Service de chauffeur optionnel",
+      hotelAssistance: "Aide réservation hôtel & Airbnb",
+      virtualTour: "Visite Virtuelle",
+      personalize: "Personnalisez votre voyage",
+      addComment: "Ajouter une note personnelle",
+      occasions: "Occasions spéciales",
+      birthday: "Anniversaire",
+      anniversary: "Anniversaire de mariage",
+      honeymoon: "Lune de miel",
+      business: "Voyage d'affaires",
+      family: "Vacances en famille",
+      wedding: "Mariage",
+      floatingPromo: "🔥 Offre limitée",
+      bookNow: "Réserver",
+      viewDetails: "Voir détails",
+      instantConfirmation: "Confirmation instantanée",
+      bestPrice: "Garantie meilleur prix",
+      freeMileage: "Kilométrage illimité",
+      insurance: "Assurance complète",
+      roadside: "Dépannage 24/7",
+      climate: "Climatisation",
+      bluetooth: "Bluetooth",
+      usb: "Charge USB",
+      backupCam: "Caméra recul",
+      cruise: "Régulateur",
+      keyless: "Sans clé",
+    },
+  };
+  return translations[lang]?.[key] || translations.en[key] || key;
+}
+
+type SortValue = "recommended" | "price-low" | "price-high" | "rating";
+
+// ============================================================
+// PERSONALIZE MODAL
+// ============================================================
+function PersonalizeModal({ car, isOpen, onClose, onSave }: any) {
+  const [personalNote, setPersonalNote] = useState("");
+  const [occasion, setOccasion] = useState("");
+  const [extraRequests, setExtraRequests] = useState({
+    childSeat: false,
+    gps: false,
+    wifi: false,
+    cooler: false,
+    driver: false,
+  });
+
+  if (!isOpen || !car) return null;
+
+  const occasions = ["Birthday", "Anniversary", "Honeymoon", "Business", "Family Vacation", "Wedding"];
+
+  const handleSave = () => {
+    const personalizationData = {
+      carId: car.id,
+      carName: `${car.make} ${car.model}`,
+      personalNote,
+      occasion,
+      extraRequests,
+      date: new Date().toISOString(),
+    };
+    localStorage.setItem(`personalization_${car.id}`, JSON.stringify(personalizationData));
+    toast.success("✨ Your personalized preferences saved!");
+    onSave?.(personalizationData);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[85vh] overflow-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-5 text-white sticky top-0">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-black flex items-center gap-2">
+              <Gift size={24} /> {getTranslation("personalize")}
+            </h3>
+            <button onClick={onClose} className="bg-white/20 p-2 rounded-full hover:bg-white/30">✕</button>
+          </div>
+          <p className="text-sm opacity-90 mt-1">{car.make} {car.model}</p>
+        </div>
+
+        <div className="p-6 space-y-5">
+          <div>
+            <label className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <Trophy size={18} className="text-yellow-500" /> {getTranslation("occasions")}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {occasions.map((occ) => (
+                <button
+                  key={occ}
+                  onClick={() => setOccasion(occ)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                    occasion === occ 
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md" 
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {occ === "Birthday" && "🎂"} {occ === "Anniversary" && "💑"} {occ === "Honeymoon" && "🌙"}
+                  {occ === "Business" && "💼"} {occ === "Family Vacation" && "👨‍👩‍👧‍👦"} {occ === "Wedding" && "💒"}
+                  {occ}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <MessageCircle size={18} className="text-blue-500" /> {getTranslation("addComment")}
+            </label>
+            <textarea
+              value={personalNote}
+              onChange={(e) => setPersonalNote(e.target.value)}
+              placeholder="e.g., I need the car at 5 AM, prefer white color, need help with luggage..."
+              className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none resize-none text-black"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <Wallet size={18} className="text-green-500" /> Extra Services
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex items-center gap-2 p-2 border rounded-xl cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" checked={extraRequests.childSeat} onChange={(e) => setExtraRequests({...extraRequests, childSeat: e.target.checked})} />
+                <span>👶 Child Seat (+Rs 250/day)</span>
+              </label>
+              <label className="flex items-center gap-2 p-2 border rounded-xl cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" checked={extraRequests.gps} onChange={(e) => setExtraRequests({...extraRequests, gps: e.target.checked})} />
+                <span>🗺️ GPS (+Rs 300/day)</span>
+              </label>
+              <label className="flex items-center gap-2 p-2 border rounded-xl cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" checked={extraRequests.wifi} onChange={(e) => setExtraRequests({...extraRequests, wifi: e.target.checked})} />
+                <span>📶 WiFi Hotspot (+Rs 200/day)</span>
+              </label>
+              <label className="flex items-center gap-2 p-2 border rounded-xl cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" checked={extraRequests.cooler} onChange={(e) => setExtraRequests({...extraRequests, cooler: e.target.checked})} />
+                <span>🧊 Cooler Box (+Rs 150/day)</span>
+              </label>
+              <label className="flex items-center gap-2 p-2 border rounded-xl cursor-pointer hover:bg-slate-50 col-span-2">
+                <input type="checkbox" checked={extraRequests.driver} onChange={(e) => setExtraRequests({...extraRequests, driver: e.target.checked})} />
+                <span>👨‍✈️ Private Driver (+Rs 1500/day)</span>
+              </label>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSave}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition"
+          >
+            ✨ Save My Preferences
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 360° CAR VIEWER
+// ============================================================
+function Car360Viewer({ car, isOpen, onClose }: { car: any; isOpen: boolean; onClose: () => void }) {
+  if (!car) return null;
+  
+  const [rotation, setRotation] = useState(0);
+  const [isRotating, setIsRotating] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isRotating) {
+      intervalRef.current = setInterval(() => {
+        setRotation(prev => (prev + 2) % 360);
+      }, 50);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isRotating]);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/95 items-center justify-center p-4 backdrop-blur-sm hidden md:flex">
+      <div ref={containerRef} className="relative max-w-4xl w-full bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6">
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white text-2xl z-10">✕</button>
+        <button onClick={toggleFullscreen} className="absolute top-4 right-16 text-white/70 hover:text-white z-10">
+          {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+        </button>
+        
+        <h3 className="text-2xl font-black text-white mb-4 text-center">{car.make} {car.model} - 360° View</h3>
+        
+        <div className="relative bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8">
+          <div className="relative w-full h-[400px] items-center justify-center hidden md:flex">
+            <motion.div
+              animate={{ rotateY: rotation }}
+              transition={{ duration: 0, ease: "linear" }}
+              className="w-full h-full items-center justify-center hidden md:flex"
+            >
+              <img
+                src={getCarImage(car, rotation)}
+                alt={`${car.make} ${car.model} 360 view`}
+                className="max-w-full max-h-[350px] object-contain drop-shadow-2xl"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = getCarImage(car, 0);
+                }}
+              />
+            </motion.div>
+          </div>
+          
+          <div className="justify-center gap-4 mt-6 hidden md:flex">
+            <button
+              onClick={() => setIsRotating(!isRotating)}
+              className="items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition hidden md:inline-flex"
+            >
+              {isRotating ? <Pause size={18} /> : <Play size={18} />}
+              {isRotating ? getTranslation("stopRotation") : getTranslation("startRotation")}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="359"
+              value={rotation}
+              onChange={(e) => { setIsRotating(false); setRotation(parseInt(e.target.value)); }}
+              className="w-64 accent-blue-600"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-4 gap-3 mt-6 text-center text-white/60 text-xs">
+          <div className="bg-white/10 rounded-xl p-2"><Car size={16} className="mx-auto mb-1" /> {car.make} {car.model}</div>
+          <div className="bg-white/10 rounded-xl p-2"><Gauge size={16} className="mx-auto mb-1" /> {car.horsepower || "180"} HP</div>
+          <div className="bg-white/10 rounded-xl p-2"><Zap size={16} className="mx-auto mb-1" /> 0-100: {car.acceleration || "8.5"}s</div>
+          <div className="bg-white/10 rounded-xl p-2"><ShieldCheck size={16} className="mx-auto mb-1" /> Airbags: {car.airbags || 6}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// CAR SPECS MODAL
+// ============================================================
+function CarSpecsModal({ car, onClose }: { car: any; onClose: () => void }) {
+  if (!car) return null;
+
+  const specs = [
+    { icon: Gauge, label: "Engine", value: car.engine || "1.6L 4-Cylinder" },
+    { icon: Zap, label: "Horsepower", value: `${car.horsepower || 150} HP` },
+    { icon: Battery, label: "Fuel Tank", value: `${car.fuel_tank || 50}L` },
+    { icon: TrendingUp, label: "Top Speed", value: `${car.top_speed || 200} km/h` },
+    { icon: Clock, label: "Acceleration", value: `0-100: ${car.acceleration || 9.5}s` },
+    { icon: ShieldCheck, label: "Safety", value: `${car.safety_rating || 5} Star NCAP` },
+    { icon: Wifi, label: "Connectivity", value: car.connectivity || "Apple CarPlay/Android Auto" },
+    { icon: Coffee, label: "Comfort", value: car.comfort || "AC, Heated Seats" },
+  ];
+
+  const features = [
+    { icon: CheckCircle, label: getTranslation("gps"), included: car.has_gps !== false },
+    { icon: CheckCircle, label: getTranslation("bluetooth"), included: car.has_bluetooth !== false },
+    { icon: CheckCircle, label: getTranslation("backupCam"), included: car.has_camera !== false },
+    { icon: CheckCircle, label: getTranslation("cruise"), included: car.has_cruise !== false },
+    { icon: CheckCircle, label: getTranslation("keyless"), included: car.has_keyless !== false },
+    { icon: CheckCircle, label: getTranslation("usb"), included: car.has_usb !== false },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/90 items-center justify-center p-4 backdrop-blur-sm hidden md:flex" onClick={onClose}>
+      <div className="relative bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-10">✕</button>
+        
+        <div className="p-6">
+          <div className="items-center gap-4 mb-6 hidden md:flex">
+            <img src={getCarImage(car, 0)} alt={`${car.make} ${car.model}`} className="w-24 h-24 object-contain" />
+            <div>
+              <h2 className="text-3xl font-black text-black">{car.make} {car.model}</h2>
+              <p className="text-gray-500">{car.av_group} • {car.year || 2024}</p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-xl font-bold mb-3 items-center gap-2 text-black hidden md:flex"><Gauge size={20} /> {getTranslation("specifications")}</h3>
+              <div className="space-y-2">
+                {specs.map((spec, i) => (
+                  <div key={i} className="justify-between items-center py-2 border-b hidden md:flex">
+                    <span className="items-center gap-2 text-gray-600 hidden md:inline-flex"><spec.icon size={16} /> {spec.label}</span>
+                    <span className="font-semibold text-black">{spec.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-3 items-center gap-2 text-black hidden md:flex"><Star size={20} /> {getTranslation("features")}</h3>
+              <div className="space-y-2">
+                {features.map((feature, i) => (
+                  <div key={i} className="items-center gap-2 py-2 hidden md:flex">
+                    {feature.included ? <CheckCircle size={16} className="text-green-500" /> : <XCircle size={16} className="text-gray-300" />}
+                    <span className={feature.included ? "text-gray-700" : "text-gray-400"}>{feature.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// FILTER PANEL
+// ============================================================
+function FilterPanel({ filter, onFilterChange, onClear }: any) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { formatPrice } = useCurrency();
+  const priceOptions = [500, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 10000];
+  const seatOptions = [2, 4, 5, 7, 8];
+  const fuelOptions = ["petrol", "diesel", "electric", "hybrid"];
+  const transmissionOptions = ["manual", "auto"];
+  const categoryOptions = ["economy", "compact", "suv", "luxury", "premium"];
+
+  return (
+    <div className="relative">
+      <button onClick={() => setIsOpen(!isOpen)} className="items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-xl hover:bg-white/20 transition hidden md:inline-flex">
+        <Filter size={18} /> {getTranslation("filter")} <ChevronDown size={14} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl z-50 p-5 text-black space-y-4 border">
+          <div className="justify-between items-center border-b pb-2 hidden md:flex">
+            <h3 className="font-bold text-black">{getTranslation("filter")}</h3>
+            <button onClick={onClear} className="text-red-500 text-sm hover:underline">{getTranslation("clearfilter")}</button>
+          </div>
+          <div><label className="text-sm font-medium mb-2 text-black hidden md:block">{getTranslation("priceRange")}</label>
+            <select value={filter.maxPrice || ""} onChange={(e) => onFilterChange("maxPrice", Number(e.target.value))} className="w-full p-2 border rounded-xl text-black">
+              <option value="">Any price</option>
+              {priceOptions.map(p => <option key={p} value={p}>Up to {formatPrice(p)}</option>)}
+            </select>
+          </div>
+          <div><label className="text-sm font-medium mb-2 text-black hidden md:block">{getTranslation("seats")}</label>
+            <div className="flex-wrap gap-2 hidden md:flex">{seatOptions.map(s => (<button key={s} onClick={() => onFilterChange("seats", filter.seats === s ? null : s)} className={`px-3 py-1 rounded-full text-sm transition ${filter.seats === s ? "bg-red-600 text-white" : "bg-gray-100 text-black"}`}>{s}+</button>))}</div>
+          </div>
+          <div><label className="text-sm font-medium mb-2 text-black hidden md:block">{getTranslation("fuelType")}</label>
+            <div className="flex-wrap gap-2 hidden md:flex">{fuelOptions.map(f => (<button key={f} onClick={() => onFilterChange("fuel", filter.fuel === f ? null : f)} className={`px-3 py-1 rounded-full text-sm transition ${filter.fuel === f ? "bg-red-600 text-white" : "bg-gray-100 text-black"}`}>{getTranslation(f)}</button>))}</div>
+          </div>
+          <div><label className="text-sm font-medium mb-2 text-black hidden md:block">{getTranslation("transmission")}</label>
+            <div className="gap-2 hidden md:flex">{transmissionOptions.map(t => (<button key={t} onClick={() => onFilterChange("transmission", filter.transmission === t ? null : t)} className={`flex-1 py-2 rounded-xl text-sm transition ${filter.transmission === t ? "bg-red-600 text-white" : "bg-gray-100 text-black"}`}>{getTranslation(t)}</button>))}</div>
+          </div>
+          <div><label className="text-sm font-medium mb-2 text-black hidden md:block">{getTranslation("category")}</label>
+            <div className="flex-wrap gap-2 hidden md:flex">{categoryOptions.map(c => (<button key={c} onClick={() => onFilterChange("category", filter.category === c ? null : c)} className={`px-3 py-1 rounded-full text-sm transition ${filter.category === c ? "bg-red-600 text-white" : "bg-gray-100 text-black"}`}>{getTranslation(c)}</button>))}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// FLOATING PROMO
+// ============================================================
+function FloatingPromo({ onClick }: { onClick: () => void }) {
+  const [isVisible, setIsVisible] = useState(true);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) return null;
+
+  return (
+    <motion.div
+      initial={{ scale: 0, x: 100, y: 100 }}
+      animate={{ scale: 1, x: 0, y: 0 }}
+      exit={{ scale: 0 }}
+      className="fixed bottom-24 right-6 z-50"
+    >
+      <button
+        onClick={onClick}
+        className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-full font-black shadow-2xl items-center gap-2 animate-bounce hover:animate-none hidden md:inline-flex"
+      >
+        <Sparkles size={20} className="animate-pulse" />
+        {getTranslation("floatingPromo")}
+        <span className="bg-white text-orange-600 px-2 py-0.5 rounded-full text-xs">-15%</span>
+      </button>
+    </motion.div>
+  );
+}
+
+// ============================================================
+// STATS COUNTER CARD
+// ============================================================
+function StatCard({ icon: Icon, value, label, color }: any) {
+  return (
+    <div className="bg-white/95 backdrop-blur rounded-2xl p-5 text-center shadow-lg border border-white/30">
+      <Icon className={`mx-auto ${color} w-10 h-10 mb-2`} />
+      <p className="text-2xl font-black text-slate-900">{value}</p>
+      <p className="text-xs text-slate-500 font-medium">{label}</p>
+    </div>
+  );
+}
+
+// ============================================================
+// MAIN CARS COMPONENT
+// ============================================================
+export default function Cars() {
+  const navigate = useNavigate();
+  const { selectCar } = useBooking();
+  const { formatPrice } = useCurrency();
+  const { isAuthenticated } = useAuth();
+  const [cars, setCars] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortValue>("recommended");
+  const [smartFinder, setSmartFinder] = useState("");
+  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [selectedCarFor360, setSelectedCarFor360] = useState<any>(null);
+  const [selectedCarForSpecs, setSelectedCarForSpecs] = useState<any>(null);
+  const [selectedCarForPersonalize, setSelectedCarForPersonalize] = useState<any>(null);
+  const [showFloatingPromo, setShowFloatingPromo] = useState(true);
+  const [filter, setFilter] = useState({
+    maxPrice: null as number | null,
+    seats: null as number | null,
+    fuel: null as string | null,
+    transmission: null as string | null,
+    category: null as string | null,
+  });
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    setWishlist(saved);
+    fetchAPI("/cars").then(data => { setCars(data); setLoading(false); }).catch(() => { setLoading(false); setCars([]); });
+  }, []);
+
+  const toggleWishlist = (carId: number) => {
+    let newWishlist;
+    if (wishlist.includes(carId)) {
+      newWishlist = wishlist.filter(id => id !== carId);
+      toast.success("Removed from wishlist");
+    } else {
+      newWishlist = [...wishlist, carId];
+      toast.success("Added to wishlist");
+    }
+    setWishlist(newWishlist);
+    localStorage.setItem("wishlist", JSON.stringify(newWishlist));
+  };
+
+  const shareCar = (car: any) => {
+    navigator.clipboard.writeText(`${window.location.origin}/car/${car.id}`);
+    toast.success("Link copied!");
+  };
+
+  const calculateScore = (car: any) => ((car.is_popular ? 100 : 0) + (car.instant_booking ? 40 : 0) + (car.free_cancellation ? 30 : 0) + (car.rating || 0) * 10 - (car.daily_price || 0));
+  const demandLevel = (car: any) => Math.min(((car.id % 5) + 1) * 2, 10);
+  const viewingNow = (car: any) => ((car.id % 7) + 5) * 3;
+
+  const filteredCars = useMemo(() => {
+    let result = [...cars];
+    if (smartFinder.trim()) {
+      const q = smartFinder.toLowerCase();
+      result = result.filter((car: any) => [car.make, car.model, car.av_group, car.fuel_type, car.transmission].filter(Boolean).join(" ").toLowerCase().includes(q));
+    }
+    if (filter.maxPrice) result = result.filter(car => (car.daily_price || 0) <= filter.maxPrice!);
+    if (filter.seats) result = result.filter(car => (car.seats || 0) >= filter.seats!);
+    if (filter.fuel) result = result.filter(car => car.fuel_type?.toLowerCase() === filter.fuel);
+    if (filter.transmission) result = result.filter(car => car.transmission?.toLowerCase() === filter.transmission);
+    if (filter.category) result = result.filter(car => car.av_group?.toLowerCase() === filter.category);
+    result.sort((a: any, b: any) => {
+      if (sortBy === "price-low") return (a.daily_price || 0) - (b.daily_price || 0);
+      if (sortBy === "price-high") return (b.daily_price || 0) - (a.daily_price || 0);
+      if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
+      return calculateScore(b) - calculateScore(a);
+    });
+    return result;
+  }, [cars, smartFinder, sortBy, filter]);
+
+  const handleFilterChange = (key: string, value: any) => setFilter(prev => ({ ...prev, [key]: value }));
+  const clearFilter = () => setFilter({ maxPrice: null, seats: null, fuel: null, transmission: null, category: null });
+  
+  const handleBook = (car: any) => {
+    if (!isAuthenticated) {
+      toast.error("Please login to book a car");
+      navigate("/login");
+      return;
+    }
+    selectCar(car);
+    navigate(`/checkout?carId=${car.id}`);
+  };
+
+  if (loading) return <div className="p-20 text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div><p className="mt-4 text-gray-500">Loading elite fleet...</p></div>;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-white to-red-600">
+      <div className="mx-auto max-w-[1500px] px-4 py-6 space-y-6">
+        {/* Hero Section */}
+        <motion.section initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="rounded-[32px] bg-gradient-to-r from-blue-600 via-white to-red-600 p-10 text-black shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+          <h1 className="text-5xl font-black">{getTranslation("title")}</h1>
+          <p className="mt-4 text-black/80 max-w-2xl">{getTranslation("subtitle")}</p>
+          <div className="mt-6 gap-3 flex-wrap hidden md:flex">
+            <span className="bg-white/30 backdrop-blur px-4 py-2 rounded-full items-center gap-1 hidden md:inline-flex">⚡ {getTranslation("instant")}</span>
+            <span className="bg-white/30 backdrop-blur px-4 py-2 rounded-full items-center gap-1 hidden md:inline-flex">🔥 {getTranslation("high")}</span>
+            <span className="bg-white/30 backdrop-blur px-4 py-2 rounded-full items-center gap-1 hidden md:inline-flex">🔒 {getTranslation("secure")}</span>
+            <span className="bg-white/30 backdrop-blur px-4 py-2 rounded-full items-center gap-1 hidden md:inline-flex">📊 {getTranslation("ranking")}</span>
+          </div>
+        </motion.section>
+
+        {/* Stats Section - NEW WOW FEATURE */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <StatCard icon={Star} value="4.9/5" label="Google Rating" color="text-yellow-500" />
+          <StatCard icon={Users} value="150K+" label="Happy Customers" color="text-green-500" />
+          <StatCard icon={Car} value="50+" label="Fleet Size" color="text-blue-500" />
+          <StatCard icon={Clock} value="24/7" label="Support" color="text-purple-500" />
+          <StatCard icon={Award} value="2023-25" label="Award Winner" color="text-red-500" />
+        </div>
+
+        {/* Search & Filter */}
+        <div className="gap-3 flex-wrap hidden md:flex">
+          <div className="flex-1 bg-white p-4 rounded-2xl shadow gap-3 hidden md:flex"><Search className="text-gray-400" /><input value={smartFinder} onChange={(e) => setSmartFinder(e.target.value)} placeholder={getTranslation("search")} className="w-full outline-none text-black" /></div>
+          <FilterPanel filter={filter} onFilterChange={handleFilterChange} onClear={clearFilter} />
+        </div>
+
+        {/* Sort & Count */}
+        <div className="justify-between items-center hidden md:flex"><p className="font-bold text-black">{filteredCars.length} {getTranslation("available")}</p><select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortValue)} className="border rounded-xl px-4 py-2 text-black bg-white"><option value="recommended">{getTranslation("sortRecommended")}</option><option value="price-low">{getTranslation("sortPriceLow")}</option><option value="price-high">{getTranslation("sortPriceHigh")}</option><option value="rating">{getTranslation("sortRating")}</option></select></div>
+
+        {/* Cars Grid */}
+        <div className="space-y-6">
+          <AnimatePresence>
+            {filteredCars.map((car: any, idx: number) => {
+              const image = getCarImage(car, 0);
+              const demand = demandLevel(car);
+              const viewers = viewingNow(car);
+              const score = calculateScore(car);
+              const isWishlisted = wishlist.includes(car.id);
+              const isBestValue = score > 120;
+              const isLimitedOffer = car.id % 5 === 0;
+              const carDisplayName = `${car.make || ""} ${car.model || ""}`.trim();
+              const categoryClass = car.av_group || "Economy";
+              const personalization = localStorage.getItem(`personalization_${car.id}`);
+              const savedPersonalization = personalization ? JSON.parse(personalization) : null;
+
+              return (
+                <motion.div
+                  key={car.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: idx * 0.05 }}
+                >
+                  <Tilt
+                    glareEnable={true}
+                    glareMaxOpacity={0.25}
+                    glareColor="#ffffff"
+                    glarePosition="all"
+                    scale={1.02}
+                    transitionSpeed={1500}
+                    tiltMaxAngleX={8}
+                    tiltMaxAngleY={8}
+                    perspective={1200}
+                    className="rounded-3xl"
+                  >
+                    <div className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
+                      <div className="grid lg:grid-cols-[280px_1fr_260px] gap-6 p-6">
+                        {/* Image Column */}
+                        <div className="relative group">
+                          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 cursor-pointer" onClick={() => navigate(`/car/${car.id}`)}>
+                            <img src={image} className="w-full h-[180px] object-contain transition-transform duration-500 group-hover:scale-110" alt={carDisplayName} />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all" />
+                          </div>
+                          <button onClick={() => setSelectedCarFor360(car)} className="absolute bottom-2 right-2 bg-black/70 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full items-center gap-1 hover:bg-black transition hidden md:inline-flex"><RotateCw size={12} /> {getTranslation("view360")}</button>
+                          {car.is_popular && <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full items-center gap-1 hidden md:inline-flex"><Zap size={10} /> 🔥 {getTranslation("popular")}</span>}
+                          {isBestValue && <span className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full items-center gap-1 hidden md:inline-flex"><Award size={10} /> {getTranslation("bestValue")}</span>}
+                          {isLimitedOffer && <span className="absolute bottom-12 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full items-center gap-1 hidden md:inline-flex"><Clock size={10} /> {getTranslation("limitedOffer")}</span>}
+                        </div>
+
+                        {/* Details Column */}
+                        <div>
+                          <div className="items-center gap-3 flex-wrap hidden md:flex">
+                            <h2 className="text-2xl font-black text-black cursor-pointer hover:text-red-600 transition" onClick={() => navigate(`/car/${car.id}`)}>{carDisplayName}</h2>
+                            <div className="text-xs font-black bg-red-100 text-red-700 px-2 py-1 rounded-full">📋 {getTranslation("categoryRef")}: {categoryClass}</div>
+                            {savedPersonalization && (
+                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full items-center gap-1 hidden md:inline-flex"><Gift size={10} /> Personalized</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">{car.av_group} • {car.transmission} • {car.fuel_type}</p>
+                          
+                          <div className="gap-2 flex-wrap mt-2 hidden md:flex">
+                            {car.stock_number && (<span className="bg-red-500/20 text-red-600 px-3 py-1 rounded-full text-xs font-bold">#{car.stock_number}</span>)}
+                            {car.color && (<span className="bg-blue-500/20 text-blue-600 px-3 py-1 rounded-full text-xs font-bold">🎨 {car.color}</span>)}
+                            {car.wow_feature && (<span className="bg-yellow-500/20 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold items-center gap-1 hidden md:inline-flex"><Sparkles size={10} /> {car.wow_feature}</span>)}
+                          </div>
+
+                          <div className="mt-2 items-center gap-2 hidden md:flex">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            <p className="text-green-600 text-sm font-medium">⚡ {getTranslation("onlyLeft")} {demand} {getTranslation("left")} • {viewers} {getTranslation("viewingNow")}</p>
+                          </div>
+
+                          <div className="mt-2 gap-2 flex-wrap hidden md:flex">
+                            {score > 80 && <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs items-center gap-1 hidden md:inline-flex"><Award size={10} /> 🏆 {getTranslation("bestDeal")}</span>}
+                            {car.instant_booking && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs items-center gap-1 hidden md:inline-flex"><Zap size={10} /> ⚡ {getTranslation("instantBadge")}</span>}
+                            {car.free_cancellation && <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs items-center gap-1 hidden md:inline-flex"><CheckCircle size={10} /> ✅ {getTranslation("freeCancel")}</span>}
+                          </div>
+
+                          <div className="mt-3 gap-4 text-sm text-black flex-wrap hidden md:flex">
+                            <span className="items-center gap-1 bg-gray-100 px-2 py-1 rounded-full hidden md:inline-flex"><User size={12} /> {car.seats || 5} {getTranslation("seatsCount")}</span>
+                            <span className="items-center gap-1 bg-gray-100 px-2 py-1 rounded-full hidden md:inline-flex"><DoorOpen size={12} /> {car.doors || 4} {getTranslation("doorCount")}</span>
+                            <span className="items-center gap-1 bg-gray-100 px-2 py-1 rounded-full hidden md:inline-flex"><BriefcaseBusiness size={12} /> {car.luggage || 2} {getTranslation("bagsCount")}</span>
+                            <span className="items-center gap-1 bg-gray-100 px-2 py-1 rounded-full hidden md:inline-flex"><Gauge size={12} /> {car.horsepower || 150} HP</span>
+                          </div>
+
+                          <div className="mt-3 items-center gap-2 hidden md:flex">
+                            <div className="items-center hidden md:flex"><Star size={14} className="fill-yellow-400 text-yellow-400" /><span className="font-bold ml-1 text-black">{car.rating || 4.5}</span></div>
+                            <span className="text-gray-400 text-sm">({car.review_count || 128} {getTranslation("customers")})</span>
+                            <div className="items-center gap-1 text-green-600 text-sm hidden md:flex"><ThumbsUp size={12} /> 98% {getTranslation("satisfaction")}</div>
+                          </div>
+
+                          <div className="mt-4 space-y-2 pt-2 border-t border-gray-100">
+                            <div className="text-sm text-yellow-600 items-center gap-2 hidden md:flex"><span>✈️</span> {getTranslation("freeAirport")}</div>
+                            <div className="text-sm text-green-600 items-center gap-2 hidden md:flex"><span>🏝️</span> {getTranslation("localSupport")}</div>
+                            <div className="text-sm text-pink-600 items-center gap-2 hidden md:flex"><span>🧳</span> {getTranslation("luggageHelp")}</div>
+                            <div className="text-sm text-cyan-600 items-center gap-2 hidden md:flex"><span>🚖</span> {getTranslation("chauffeurService")}</div>
+                            <div className="text-sm text-orange-600 items-center gap-2 hidden md:flex"><span>🏨</span> {getTranslation("hotelAssistance")}</div>
+                          </div>
+                        </div>
+
+                        {/* Price & Actions Column */}
+                        <div className="text-right flex-col justify-between border-l pl-6 hidden md:flex">
+                          <div>
+                            <p className="text-sm text-gray-400">{getTranslation("perday")}</p>
+                            <p className="text-3xl font-black text-red-600">{formatPrice(car.daily_price)}</p>
+                            <p className="text-xs text-gray-400">+ taxes & fees included</p>
+                          </div>
+                          
+                          <div className="flex-col gap-2 hidden md:flex">
+                            <div className="gap-2 justify-end hidden md:flex">
+                              <button onClick={() => toggleWishlist(car.id)} className="p-2 rounded-full hover:bg-gray-100 transition"><Heart size={18} className={isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"} /></button>
+                              <button onClick={() => shareCar(car)} className="p-2 rounded-full hover:bg-gray-100 transition"><Share2 size={18} className="text-gray-500" /></button>
+                              <button onClick={() => setSelectedCarForSpecs(car)} className="p-2 rounded-full hover:bg-gray-100 transition"><Info size={18} className="text-gray-500" /></button>
+                              <button onClick={() => setSelectedCarForPersonalize(car)} className="p-2 rounded-full hover:bg-purple-100 transition"><Gift size={18} className="text-purple-500" /></button>
+                            </div>
+                            <button onClick={() => handleBook(car)} className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition shadow-lg hover:shadow-xl">
+                              {getTranslation("book")}
+                            </button>
+                            <p className="text-xs text-gray-400 mt-1">✓ Free cancellation • ✓ Insurance included</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Tilt>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {filteredCars.length === 0 && <div className="text-center py-20 text-gray-500 bg-white rounded-3xl"><Car size={48} className="mx-auto mb-4 opacity-30" /><p>{getTranslation("noResults")}</p></div>}
+
+        {/* Modals */}
+        {selectedCarFor360 && <Car360Viewer car={selectedCarFor360} isOpen={!!selectedCarFor360} onClose={() => setSelectedCarFor360(null)} />}
+        {selectedCarForSpecs && <CarSpecsModal car={selectedCarForSpecs} onClose={() => setSelectedCarForSpecs(null)} />}
+        {selectedCarForPersonalize && (
+          <PersonalizeModal 
+            car={selectedCarForPersonalize} 
+            isOpen={!!selectedCarForPersonalize} 
+            onClose={() => setSelectedCarForPersonalize(null)}
+            onSave={() => { setCars([...cars]); }}
+          />
+        )}
+      </div>
+      
+      {showFloatingPromo && <FloatingPromo onClick={() => { setShowFloatingPromo(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
+    </div>
+  );
+}
+
+
+===============================
+FILE: src/lib/api.ts
+===============================
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:4000/api";
+
+async function handleResponse(res: Response) {
+  let data: any = {};
+
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      data?.message ||
+      "Request failed"
+    );
+  }
+
+  return data;
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  const headers: Record<string, string> = {};
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return headers;
+}
+
+export async function fetchAPI(
+  path: string,
+  options: RequestInit = {},
+  authRequired = true
+) {
+  const token = localStorage.getItem("token");
+
+  const headers: Record<string, string> = {};
+
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] =
+      "application/json";
+  }
+
+  if (token && authRequired) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+  if (options.headers) {
+    Object.assign(
+      headers,
+      options.headers as any
+    );
+  }
+
+  const res = await fetch(
+    `${API_URL}${path}`,
+    {
+      ...options,
+      headers,
+    }
+  );
+
+  return handleResponse(res);
+}
+
+// ============================================================
+// AUTH API
+// ============================================================
+export const loginUser = (data: any) =>
+  fetchAPI(
+    "/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    false
+  );
+
+export const registerUser = (data: any) =>
+  fetchAPI(
+    "/auth/register",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    false
+  );
+
+export const fetchMe = () =>
+  fetchAPI("/auth/me");
+
+// ============================================================
+// CARS API
+// ============================================================
+export const fetchCars = () =>
+  fetchAPI("/cars", {}, false);
+
+export const fetchCarById = (
+  id: string | number
+) =>
+  fetchAPI(
+    `/cars/${id}`,
+    {},
+    false
+  );
+
+// ============================================================
+// BOOKINGS API
+// ============================================================
+export const fetchBookings = () =>
+  fetchAPI("/bookings");
+
+export const fetchBookingById = (id: string | number) =>
+  fetchAPI(`/bookings/${id}`);
+
+export const createBooking = (
+  data: any
+) =>
+  fetchAPI("/bookings", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const cancelBooking = (id: string | number) =>
+  fetchAPI(`/bookings/${id}/cancel`, {
+    method: "PUT",
+  });
+
+// ============================================================
+// ADMIN API
+// ============================================================
+export const fetchAdminBookings = (
+  params?: any
+) => {
+  const query = new URLSearchParams();
+
+  Object.entries(
+    params || {}
+  ).forEach(
+    ([k, v]) => {
+      if (
+        v !== undefined &&
+        v !== null
+      ) {
+        query.append(
+          k,
+          String(v)
+        );
+      }
+    }
+  );
+
+  return fetchAPI(
+    `/admin/bookings?${query}`
+  );
+};
+
+export const fetchAdminDashboard = () =>
+  fetchAPI("/admin/dashboard");
+
+export const fetchAdminTicker = () =>
+  fetchAPI("/admin/ticker");
+
+export const fetchAdminAvailability = (
+  start: string,
+  end: string
+) =>
+  fetchAPI(
+    `/admin/availability?start=${start}&end=${end}`
+  );
+
+export const fetchAdminTickets = (
+  params?: any
+) => {
+  const query = new URLSearchParams();
+
+  if (params?.status)
+    query.append(
+      "status",
+      params.status
+    );
+
+  if (params?.priority)
+    query.append(
+      "priority",
+      params.priority
+    );
+
+  if (params?.q)
+    query.append(
+      "q",
+      params.q
+    );
+
+  return fetchAPI(
+    `/admin/tickets?${query}`
+  );
+};
+
+export const fetchAdminTicket = (
+  id: number
+) =>
+  fetchAPI(
+    `/admin/tickets/${id}`
+  );
+
+export const sendAdminTicketMessage = (
+    id: number,
+    message: string,
+    attachment?: File | null
+  ) => {
+    const fd = new FormData();
+    fd.append("message", message);
+
+    if (attachment) {
+      fd.append("attachment", attachment);
+    }
+
+    return fetchAPI(
+      `/admin/tickets/${id}/messages`,
+      {
+        method: "POST",
+        body: fd,
+      }
+    );
+  };
+
+export const updateAdminBooking = (
+    id: number,
+    payload: any
+  ) =>
+    fetchAPI(
+      `/admin/bookings/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+export const updateAdminBookingPayment = (
+    id: number,
+    payload: any
+  ) =>
+    fetchAPI(
+      `/admin/bookings/${id}/payment`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+export const updateAdminTicket = (
+    id: number,
+    payload: any
+  ) =>
+    fetchAPI(
+      `/admin/tickets/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+export const updateBookingStatus = (
+  id: string | number,
+  status: string
+) =>
+  fetchAPI(
+    `/admin/bookings/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        status,
+      }),
+    }
+  );
+
+export const fetchAdminUsers = () =>
+  fetchAPI("/admin/users");
+
+export const updateUserRole = (
+  id: string | number,
+  role: string
+) =>
+  fetchAPI(
+    `/admin/users/${id}/role`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ role }),
+    }
+  );
+
+// ============================================================
+// PAYMENTS API
+// ============================================================
+export const createPaymentIntent = (data: any) =>
+  fetchAPI("/payments/create-intent", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const confirmPayment = (data: any) =>
+  fetchAPI("/payments/confirm", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+// ============================================================
+// INVOICES API
+// ============================================================
+export const fetchInvoices = () =>
+  fetchAPI("/invoices");
+
+export const fetchInvoiceById = (id: string | number) =>
+  fetchAPI(`/invoices/${id}`);
+
+export const fetchInvoicePdf = (id: string | number) =>
+  `${API_URL}/invoices/${id}/pdf`;
+
+// ============================================================
+// SUPPORT / TICKETS API
+// ============================================================
+export const fetchTickets = () =>
+  fetchAPI("/tickets/my");
+
+export const fetchTicketById = (id: string | number) =>
+  fetchAPI(`/tickets/${id}`);
+
+export const createTicket = (data: any) =>
+  fetchAPI("/tickets", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const addTicketMessage = (id: string | number, message: string) =>
+  fetchAPI(`/tickets/${id}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+
+export const updateTicketStatus = (id: string | number, status: string) =>
+  fetchAPI(`/admin/tickets/${id}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+  });
+
+// ============================================================
+// EXPLORE / LOCATIONS API
+// ============================================================
+export const fetchLocations = () =>
+  fetchAPI("/locations", {}, false);
+
+export const fetchWeather = (location: string) =>
+  fetchAPI(`/weather/${encodeURIComponent(location)}`, {}, false);
+
+// ============================================================
+// WISHLIST API (Local Storage based - kept for consistency)
+// ============================================================
+export const getWishlist = (): number[] => {
+  const saved = localStorage.getItem("wishlist");
+  return saved ? JSON.parse(saved) : [];
+};
+
+export const saveWishlist = (wishlist: number[]) => {
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+};
+
+export const addToWishlist = (carId: number) => {
+  const wishlist = getWishlist();
+  if (!wishlist.includes(carId)) {
+    wishlist.push(carId);
+    saveWishlist(wishlist);
+  }
+  return wishlist;
+};
+
+export const removeFromWishlist = (carId: number) => {
+  const wishlist = getWishlist();
+  const newWishlist = wishlist.filter(id => id !== carId);
+  saveWishlist(newWishlist);
+  return newWishlist;
+};
+
+export const isInWishlist = (carId: number): boolean => {
+  return getWishlist().includes(carId);
+};
+
+// ============================================================
+// PERSONALIZATION API (Local Storage based)
+// ============================================================
+export interface PersonalizationData {
+  carId: number;
+  carName: string;
+  personalNote: string;
+  occasion: string;
+  extraRequests: {
+    childSeat: boolean;
+    gps: boolean;
+    wifi: boolean;
+    cooler: boolean;
+    driver: boolean;
+  };
+  date: string;
+}
+
+export const getPersonalization = (carId: number): PersonalizationData | null => {
+  const saved = localStorage.getItem(`personalization_${carId}`);
+  return saved ? JSON.parse(saved) : null;
+};
+
+export const savePersonalization = (carId: number, data: PersonalizationData) => {
+  localStorage.setItem(`personalization_${carId}`, JSON.stringify(data));
+};
+
+export const removePersonalization = (carId: number) => {
+  localStorage.removeItem(`personalization_${carId}`);
+};
+
+/* ==========================================================
+   VERIFICATION API
+========================================================== */
+
+export async function fetchMyVerification() {
+  return handleResponse(
+    await fetch(`${API_URL}/verification/me`, {
+      credentials: "include",
+      headers: getAuthHeaders(),
+    })
+  );
+}
+
+export async function fetchAdminVerifications(params?: any) {
+  const query = new URLSearchParams();
+
+  if (params?.status) query.append("status", params.status);
+  if (params?.q) query.append("q", params.q);
+  if (params?.country) query.append("country", params.country);
+  if (params?.riskLevel) query.append("riskLevel", params.riskLevel);
+
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications?${query.toString()}`,
+      {
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+export async function fetchAdminVerification(id: number) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${id}`,
+      {
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+export async function updateAdminVerification(
+  id: number,
+  payload: any
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    )
+  );
+}
+
+export async function uploadVerificationDocuments(
+  type: string,
+  file: File
+) {
+  const formData = new FormData();
+
+  formData.append("type", type);
+  formData.append("file", file);
+
+  return handleResponse(
+    await fetch(
+      `${API_URL}/verification/upload`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: getAuthHeaders(),
+        body: formData,
+      }
+    )
+  );
+}
+
+export async function approveVerification(
+  verificationId: number
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${verificationId}/approve`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+export async function rejectVerification(
+  verificationId: number,
+  reason: string
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${verificationId}/reject`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason }),
+      }
+    )
+  );
+}
+
+export async function resendVerificationRequest(
+  verificationId: number
+) {
+  return handleResponse(
+    await fetch(
+      `${API_URL}/admin/verifications/${verificationId}/resend`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: getAuthHeaders(),
+      }
+    )
+  );
+}
+
+// GET helper for ProfileRequiredModal
+export const get = async (path: string) => {
+  return fetchAPI(path, {}, true);
+};
+
+// Default export for convenience
+const api = {
+  get,
+  post: (path: string, data: any) => fetchAPI(path, { method: "POST", body: JSON.stringify(data) }),
+  put: (path: string, data: any) => fetchAPI(path, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (path: string) => fetchAPI(path, { method: "DELETE" }),
+};
+
+export { api };
+
+
+===============================
+FILE: src/types/car.ts
+===============================
+
+export interface Car {
+  id: number;
+
+  make: string;
+
+  model: string;
+
+  year?: number;
+
+  color?: string;
+
+  seats?: number;
+
+  daily_price: number;
+
+  status?: string;
+
+  transmission?: string;
+
+  fuel_type?: string;
+
+  image?: string;
+
+  horsepower?: string;
+
+  engine?: string;
+
+  location?: string;
+
+  availability_status?: string;
+
+  features_json?: string[] | string;
+
+  specs_json?:
+    | Record<string, any>
+    | string;
+
+  name?: string;
+
+  price?: number;
+}
+
+
+===============================
+FILE: src/hooks/useCars.ts
+===============================
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { cars as fallbackcars } from "@/data/cars";
+
+export type carsfilter = {
+  category: string;
+  fuel: string;
+  seats: string;
+  popular: boolean;
+  price: number;
+  avGroup?: string;
+};
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim();
+
+function normalizecarsPayload(payload: any): any[] {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.cars)) return payload.cars;
+  return [];
+}
+
+export function usecars(initialfilter: carsfilter) {
+  const stableInitialfilter = useMemo(() => initialfilter, [initialfilter]);
+
+  const [cars, setcars] = useState<any[]>(fallbackcars);
+  const [filter, setfilter] = useState<carsfilter>(stableInitialfilter);
+  const [loading, setLoading] = useState<boolean>(Boolean(API_BASE_URL));
+  const [error, setError] = useState<string>("");
+
+  const fetchcars = useCallback(async () => {
+    if (!API_BASE_URL) {
+      setcars(fallbackcars);
+      setError("");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(`${API_BASE_URL}/cars`);
+      if (!response.ok) throw new Error();
+
+      const payload = await response.json();
+      const normalized = normalizecarsPayload(payload);
+
+      if (normalized.length === 0) {
+        setcars(fallbackcars);
+        setError("API empty → fallback used");
+      } else {
+        setcars(normalized);
+      }
+    } catch {
+      setcars(fallbackcars);
+      setError("API offline → fallback used");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchcars();
+  }, [fetchcars]);
+
+  const updatefilter = useCallback((patch: Partial<carsfilter>) => {
+    setfilter((prev) => ({ ...prev, ...patch }));
+  }, []);
+
+  const resetfilter = useCallback(() => {
+    setfilter(stableInitialfilter);
+  }, [stableInitialfilter]);
+
+  const filteredcars = useMemo(() => {
+    return cars.filter((c: any) => {
+      if (filter.category !== "all" && c.category !== filter.category) return false;
+      if (filter.fuel !== "all" && c.fuel !== filter.fuel) return false;
+      if (filter.seats !== "all" && String(c.seats) !== filter.seats) return false;
+      if (filter.popular && !c.popular) return false;
+      if (filter.price && c.price > filter.price) return false;
+      if (filter.avGroup && c.avGroup !== filter.avGroup) return false;
+      return true;
+    });
+  }, [cars, filter]);
+
+  return {
+    cars: filteredcars,
+    filter,
+    loading,
+    error,
+    updatefilter,
+    resetfilter,
+    refetch: fetchcars,
+  };
+}
+
+
+
+
+
+
+===============================
+FILE: src/context/CurrencyContext.tsx
+===============================
+
+// src/context/CurrencyContext.tsx
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+
+interface CurrencyContextType {
+  currency: string;
+  setCurrency: (code: string) => void;
+  rates: Record<string, number> | null;
+  loading: boolean;
+  convert: (amount: number, fromCurrency?: string) => number;
+  formatPrice: (amount: number) => string;
+}
+
+const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
+
+const SYMBOLS: Record<string, string> = {
+  MUR: "Rs", USD: "$", EUR: "€", GBP: "£", INR: "₹", ZAR: "R", AED: "د.إ", CNY: "¥", JPY: "¥", CAD: "$", AUD: "$"
+};
+
+export function CurrencyProvider({ children }: { children: ReactNode }) {
+  const [currency, setCurrencyState] = useState("MUR");
+  const [rates, setRates] = useState<Record<string, number> | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load saved currency from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("preferredCurrency");
+    if (saved && SYMBOLS[saved]) {
+      setCurrencyState(saved);
+    }
+  }, []);
+
+  // Fetch exchange rates
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch("https://api.exchangerate-api.com/v4/latest/MUR");
+        const data = await res.json();
+        setRates(data.rates);
+      } catch (err) {
+        console.error("Currency API error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRates();
+    const interval = setInterval(fetchRates, 3600000); // Refresh every hour
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update currency and save to localStorage
+  const updateCurrency = (code: string) => {
+    if (SYMBOLS[code]) {
+      setCurrencyState(code);
+      localStorage.setItem("preferredCurrency", code);
+    }
+  };
+
+  // Convert amount from MUR to selected currency
+  const convert = (amount: number, fromCurrency: string = "MUR"): number => {
+    if (!rates || currency === fromCurrency) return amount;
+    const fromRate = rates[fromCurrency];
+    const toRate = rates[currency];
+    if (!fromRate || !toRate) return amount;
+    return (amount / fromRate) * toRate;
+  };
+
+  // Format price with currency symbol
+  const formatPrice = (amount: number): string => {
+    if (amount === undefined || amount === null) return `${SYMBOLS[currency] || currency} 0`;
+    const converted = convert(amount);
+    const symbol = SYMBOLS[currency] || currency;
+    return `${symbol} ${converted.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  };
+
+  return (
+    <CurrencyContext.Provider
+      value={{
+        currency,
+        setCurrency: updateCurrency,
+        rates,
+        loading,
+        convert,
+        formatPrice
+      }}
+    >
+      {children}
+    </CurrencyContext.Provider>
+  );
+}
+
+export function useCurrency() {
+  const context = useContext(CurrencyContext);
+  if (!context) throw new Error("useCurrency must be used within CurrencyProvider");
+  return context;
+}
+
+
+
+
+
+
+===============================
+FILE: src/context/LanguageContext.tsx
+===============================
+
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
+
+export type Lang = "en" | "fr";
+
+type LanguageContextType = {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (key: string) => string;
+  availableLanguages: { code: Lang; name: string; flag: string }[];
+  isRTL: boolean;
+};
+
+const translations: Record<Lang, Record<string, string>> = {
+  en: {
+    home: "Home", fleet: "Fleet", partners: "Partners", about: "About Us",
+    faq: "FAQ", support: "Support", login: "Login", register: "Register",
+    logout: "Logout", bookNow: "Book Now", pricePerDay: "Price per day",
+    total: "Total", seats: "Seats", fuel: "Fuel", transmission: "Transmission",
+    back: "← Back", onlyLeft: "Only", left: "left", peopleViewing: "people viewing",
+    bestChoice: "🔥 Best choice", lowRisk: "🛡 Low risk booking", profit: "Profit",
+    score: "Score", whyThisCar: "Why this car?", highDemand: "✔ High demand vehicle",
+    strongRating: "✔ Strong customer rating", reliableSupplier: "✔ Reliable supplier",
+    addOns: "Add-ons", addOnsTotal: "Add-ons total", youSave: "💸 You save",
+    secureBooking: "✔ Secure booking", freeCancellation: "✔ Free cancellation",
+    supportAvailable: "✔ Support available", share: "Share", wishlist: "Add to wishlist",
+    unlimitedMiles: "Unlimited miles", roadside: "24/7 Roadside assistance",
+    gallery: "Vehicle Gallery", customerReviews: "Customer Reviews",
+    similarVehicles: "Similar Vehicles", rentalPolicies: "Rental Policies",
+    minAge: "Minimum age: 21", passportRequired: "Passport required",
+    licenseRequired: "Driving licence required", airportDelivery: "Airport delivery available",
+    freeCancelPolicy: "Free cancellation 48h before pickup",
+    unlimitedMileage: "Unlimited mileage included", emergencySupport: "Emergency support",
+  },
+  fr: {
+    home: "Accueil", fleet: "Flotte", partners: "Partenaires", about: "À propos",
+    faq: "FAQ", support: "Support", login: "Connexion", register: "S'inscrire",
+    logout: "Déconnexion", bookNow: "Réserver", pricePerDay: "Prix par jour",
+    total: "Total", seats: "Places", fuel: "Carburant", transmission: "Transmission",
+    back: "← Retour", onlyLeft: "Plus que", left: "disponibles",
+    peopleViewing: "personnes regardent", bestChoice: "🔥 Meilleur choix",
+    lowRisk: "🛡 Réservation à faible risque", profit: "Profit", score: "Score",
+    whyThisCar: "Pourquoi cette voiture?", highDemand: "✔ Véhicule très demandé",
+    strongRating: "✔ Excellente note client", reliableSupplier: "✔ Fournisseur fiable",
+    addOns: "Options", addOnsTotal: "Total options", youSave: "💸 Vous économisez",
+    secureBooking: "✔ Réservation sécurisée", freeCancellation: "✔ Annulation gratuite",
+    supportAvailable: "✔ Support disponible", share: "Partager",
+    wishlist: "Ajouter aux favoris", unlimitedMiles: "Kilométrage illimité",
+    roadside: "Assistance 24/7", gallery: "Galerie", customerReviews: "Avis clients",
+    similarVehicles: "Véhicules similaires", rentalPolicies: "Conditions",
+    minAge: "Âge minimum : 21 ans", passportRequired: "Passeport requis",
+    licenseRequired: "Permis requis", airportDelivery: "Livraison aéroport",
+    freeCancelPolicy: "Annulation gratuite 48h avant",
+    unlimitedMileage: "Kilométrage illimité inclus", emergencySupport: "Assistance urgente",
+  },
+};
+
+const availableLanguages = [
+  { code: "en" as Lang, name: "English", flag: "🇬🇧" },
+  { code: "fr" as Lang, name: "Français", flag: "🇫🇷" },
+];
+
+const LanguageContext = createContext<LanguageContextType>({
+  lang: "en", setLang: () => {}, t: (key) => key, availableLanguages, isRTL: false,
+});
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(
+    (localStorage.getItem("preferredLanguage") as Lang) || "en"
+  );
+
+  const setLang = (newLang: Lang) => {
+    setLangState(newLang);
+    localStorage.setItem("preferredLanguage", newLang);
+    document.documentElement.lang = newLang;
+  };
+
+  const t = (key: string): string => {
+    return translations[lang]?.[key] || translations.en[key] || key;
+  };
+
+  const isRTL = false;
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const value = useMemo(
+    () => ({ lang, setLang, t, availableLanguages, isRTL }),
+    [lang, setLang, t, isRTL]
+  );
+
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+}
+
+export function useLang() { return useContext(LanguageContext); }
+
+
+===============================
+FILE: src/components/layout/Footer.tsx
+===============================
+
+import { Link } from "react-router-dom";
+import { Phone, Mail, MapPin, MessageCircle, Facebook, Instagram, Twitter, Globe } from "lucide-react";
+
+export default function Footer() {
+  return (
+    <footer className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border-t border-white/10 mt-20">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-6 py-20">
+        <div className="grid md:grid-cols-4 gap-14">
+          <div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.45)]">
+                <span className="text-white font-black text-3xl">A</span>
+              </div>
+              <div>
+                <h2 className="text-3xl font-black bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">AM38</h2>
+                <p className="text-xs tracking-[0.35em] text-cyan-300/60 font-bold">MAURITIUS MOBILITY</p>
+              </div>
+            </div>
+            <p className="text-white/60 leading-relaxed">
+              Premium Mauritius airport rental platform with intelligent booking, airport delivery and 24/7 support since 2013.
+            </p>
+            <div className="flex gap-4 mt-8">
+              {[Facebook, Instagram, Twitter, Globe].map((Icon, index) => (
+                <div key={index} className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-cyan-500/10 hover:border-cyan-400/30 transition-all duration-300 cursor-pointer">
+                  <Icon className="w-5 h-5 text-cyan-300" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-black mb-6 text-white">Navigation</h3>
+            <div className="space-y-4 text-white/60">
+              <Link to="/" className="block hover:text-cyan-300 transition-all duration-300">Home</Link>
+              <Link to="/cars" className="block hover:text-cyan-300 transition-all duration-300">Fleet</Link>
+              <Link to="/explore" className="block hover:text-cyan-300 transition-all duration-300">Explore</Link>
+              <Link to="/partners" className="block hover:text-cyan-300 transition-all duration-300">Partners</Link>
+              <Link to="/faq" className="block hover:text-cyan-300 transition-all duration-300">FAQ</Link>
+              <Link to="/support" className="block hover:text-cyan-300 transition-all duration-300">Support</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-black mb-6 text-white">Why AM38</h3>
+            <div className="space-y-4 text-white/60">
+              <p>✓ Airport Delivery</p>
+              <p>✓ Premium Fleet</p>
+              <p>✓ Fast Booking</p>
+              <p>✓ Smart Mobility</p>
+              <p>✓ 24/7 WhatsApp</p>
+              <p>✓ Mauritius Experts</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-black mb-6 text-white">Contact</h3>
+            <div className="space-y-5 text-white/60">
+              <div className="flex gap-3 items-start"><Phone className="w-5 h-5 text-cyan-300 mt-1" /> +230 5835 7166</div>
+              <div className="flex gap-3 items-start"><Mail className="w-5 h-5 text-cyan-300 mt-1" /> support@am38.com</div>
+              <div className="flex gap-3 items-start"><MapPin className="w-5 h-5 text-cyan-300 mt-1" /> Plaine Magnien, Mauritius</div>
+              <div className="flex gap-3 items-start"><MessageCircle className="w-5 h-5 text-cyan-300 mt-1" /> WhatsApp Support 24/7</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 text-white/40 text-sm">
+          <p>© 2026 AM38 Mauritius Mobility. All rights reserved.</p>
+          <div className="flex items-center gap-8">
+            <Link to="/terms" className="hover:text-cyan-300 transition-all">Terms</Link>
+            <Link to="/privacy" className="hover:text-cyan-300 transition-all">Privacy</Link>
+            <Link to="/support" className="hover:text-cyan-300 transition-all">Support</Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
